@@ -1,25 +1,23 @@
 package main
 
 import (
-	"text/template"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 )
 
 func main() {
-	app := fiber.New()
+	engine := html.New("./templates", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
 	app.Static("/", "./wwwroot")
 
-	tmpl := template.Must(template.ParseFiles(
-		"templates/Index.html",
-		"templates/NavMenu.html",
-		"templates/MainLayout.html",
-		"templates/_Layout.html"))
-
 	app.Get("/", func(c *fiber.Ctx) error {
-		return tmpl.Execute(c, "layout")
+		return c.Render("mainarticle", fiber.Map{})
 	})
 
-	app.Listen(":3000")
+	log.Fatal(app.Listen(":3000"))
 }
