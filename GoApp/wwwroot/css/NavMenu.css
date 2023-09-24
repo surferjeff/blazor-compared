@@ -60,3 +60,13 @@
         display: block;
     }
 }
+
+@media (max-width: 640px) {
+    #navmenu {
+        display: none;    
+    }
+}
+
+#toggle-menu:checked ~ #navmenu {
+    display: block;
+}

@@ -2,13 +2,17 @@
 <div class="navbar-top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorApp</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <label for="toggle-menu">
+            <div title="Navigation menu" class="navbar-toggler">
+                <span class="navbar-toggler-icon"></span>
+            </div>
+        </label>
     </div>
 </div>
 
-<div>
+<input type="checkbox" id="toggle-menu" class="visually-hidden">
+
+<div id="navmenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <a class="nav-link" href="/">
