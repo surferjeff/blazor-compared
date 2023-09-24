@@ -10,3 +10,5 @@ There's no way to create CSS that applies only in the current template.
 Passing multiple parameters to a template requires fifteen lines of magic code that I don't understand:
 https://stackoverflow.com/questions/18276173/calling-a-template-with-several-pipeline-parameters
 and of course type errors are not caught until execution time. 
+
+There was no built in way to reverse the elements in an array.

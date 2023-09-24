@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -51,11 +52,22 @@ func (v *MyViews) Load() error {
 
 func (v *MyViews) Render(w io.Writer, templateName string,
 	data interface{}, _ignored ...string) error {
-	tmpl := v.templates[templateName]
-	if tmpl == nil {
-		return errors.New(fmt.Sprintf("No template named %s", templateName))
+	tmpls := strings.Split(templateName, " ")
+	if len(tmpls) == 1 {
+		tmpl := v.templates[templateName]
+		if tmpl == nil {
+			return errors.New(fmt.Sprintf("No template named %s", templateName))
+		}
+		return tmpl.Execute(w, data)
+	} else if len(tmpls) == 2 {
+		tmpl := v.templates[tmpls[0]]
+		if tmpl == nil {
+			return errors.New(fmt.Sprintf("No template named %s", tmpls[0]))
+		}
+		return tmpl.ExecuteTemplate(w, tmpls[1], data)
+	} else {
+		return errors.New(fmt.Sprintf("Bad template name '%s'", templateName))
 	}
-	return tmpl.Execute(w, data)
 }
 
 func main() {
