@@ -1,0 +1,11 @@
+{{define "title"}}Counter{{end}}
+
+{{define "main-article"}}
+<form hx-get="/increment">
+    <h1>Counter</h1>
+    <p role="status">Current count: {{ .CurrentCount }}</p>
+    <input type="hidden" name="count" value="{{ .NextCount }}">
+    <submit class="btn btn-primary" @onclick="IncrementCount">Click me</submit>
+</form>
+</div>
+{{end}}

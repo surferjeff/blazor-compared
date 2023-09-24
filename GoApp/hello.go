@@ -47,6 +47,11 @@ func (v *MyViews) Load() error {
 		return error
 	}
 
+	error = parsePage("Counter")
+	if error != nil {
+		return error
+	}
+
 	return nil
 }
 
@@ -79,6 +84,12 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("Index", fiber.Map{})
+	})
+	app.Get("/counter", func(c *fiber.Ctx) error {
+		return c.Render("Counter", fiber.Map{
+			"CurrentCount": 0,
+			"NextCount":    1,
+		})
 	})
 
 	log.Fatal(app.Listen(":3000"))
