@@ -91,6 +91,13 @@ func main() {
 			"NextCount":    1,
 		})
 	})
+	app.Get("/increment", func(c *fiber.Ctx) error {
+		count := c.QueryInt("count", 0)
+		return c.Render("Counter main-article", fiber.Map{
+			"CurrentCount": count,
+			"NextCount":    count + 1,
+		})
+	})
 
 	log.Fatal(app.Listen(":3000"))
 }
