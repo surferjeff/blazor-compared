@@ -4,9 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link href="css/site.css" rel="stylesheet" />
-    {{template "head" .}}
+    <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css" />
+    <link href="/css/site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/MainLayout.css">
+    <link rel="stylesheet" href="/css/NavMenu.css">
+    {{block "head" .}}{{end}}
 </head>
 <body>
     {{template "mainlayout" .}}
