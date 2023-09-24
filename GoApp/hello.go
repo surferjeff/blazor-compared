@@ -1,12 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/template/html/v2"
 )
 
 type MyViews struct {
@@ -39,16 +40,24 @@ func (v *MyViews) Load() error {
 	return nil
 }
 
+func (v *MyViews) Render(w io.Writer, templateName string,
+	data interface{}, _ignored ...string) error {
+	tmpl := v.templates[templateName]
+	if tmpl == nil {
+		return errors.New(fmt.Sprintf("No template named %s", templateName))
+	}
+	return tmpl.Execute(w, data)
+}
+
 func main() {
-	engine := html.New("./templates", ".html")
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views: new(MyViews),
 	})
 
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("mainarticle", fiber.Map{})
+		return c.Render("Index", fiber.Map{})
 	})
 
 	log.Fatal(app.Listen(":3000"))
