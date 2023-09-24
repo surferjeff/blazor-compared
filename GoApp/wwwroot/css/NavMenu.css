@@ -62,11 +62,11 @@
 }
 
 @media (max-width: 640px) {
-    #navmenu {
+    #nav-menu {
         display: none;    
     }
 }
 
-#toggle-menu:checked ~ #navmenu {
+#toggle-menu:checked ~ #nav-menu {
     display: block;
 }
