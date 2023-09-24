@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+{{if .HxBoosted}}
+<title hx-swap-oob="title">{{block "title" .}}{{end}}</title>
+{{template "main-article" .}}
+{{else}}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,11 +10,10 @@
     <link rel="stylesheet" href="/css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="/css/open-iconic/font/css/open-iconic-bootstrap.min.css">
     <link href="/css/site.css" rel="stylesheet" />
-    {{block "head" .}}{{end}}
     <title>{{block "title" .}}{{end}}</title>
 </head>
-<body>
+<body hx-boost=true hx-target="#main-article">
     {{template "main-layout" .}}
     <script src="/htmx1.9.6.min.js"></script>
 </body>
-</html>
+</html>{{end}}

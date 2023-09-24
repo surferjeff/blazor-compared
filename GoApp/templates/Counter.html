@@ -1,11 +1,10 @@
 {{define "title"}}Counter{{end}}
 
 {{define "main-article"}}
-<form hx-get="/increment" hx-swap="outerHTML">
+<form id=increment-form hx-get="/increment">
     <h1>Counter</h1>
     <p role="status">Current count: {{ .CurrentCount }}</p>
     <input type="hidden" name="count" value="{{ .NextCount }}">
     <input type="submit" class="btn btn-primary" id="ClickMeButton" value="Click me">
 </form>
-</div>
 {{end}}
