@@ -14,12 +14,21 @@ type MyViews struct {
 	templates map[string]*template.Template
 }
 
+func reverse(numbers []string) []string {
+	for i := 0; i < len(numbers)/2; i++ {
+		j := len(numbers) - i - 1
+		numbers[i], numbers[j] = numbers[j], numbers[i]
+	}
+	return numbers
+}
+
 func (v *MyViews) Load() error {
 	v.templates = make(map[string]*template.Template)
 
 	parsePage := func(templates ...string) error {
 		name := templates[0]
 		templates = append(templates, "MainLayout", "NavMenu", "_Layout")
+		templates = reverse(templates)
 		for i := 0; i < len(templates); i++ {
 			templates[i] = fmt.Sprintf("templates/%s.html", templates[i])
 		}
