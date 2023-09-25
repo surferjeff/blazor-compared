@@ -3,7 +3,10 @@
 I prefer explicit path handler assignment in `hello.go` over ASP.NET's
 magic attributes.  It's much easier to understand.
 
-
+All the Lighthouse numbers for simulated mobile are better than ASP.NET.
+* requests: 6 < 8
+* kB: 222 < 309
+* longest content full paint (seconds): 2.36 < 2.78
 
 ## complaints
 
