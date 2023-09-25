@@ -88,9 +88,14 @@ func (v *MyViews) Render(w io.Writer, templateName string,
 	}
 }
 
-func isBoosted(c *fiber.Ctx) bool {
+func dataFromContext(c *fiber.Ctx) fiber.Map {
+	cmap := fiber.Map{}
 	headers := c.GetReqHeaders()
-	return headers["Hx-Boosted"] == "true"
+	if headers["Hx-Boosted"] == "true" {
+		cmap["HxBoosted"] = true
+	}
+	cmap["Path"] = c.Route().Path
+	return cmap
 }
 
 func main() {
@@ -101,16 +106,13 @@ func main() {
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("Index", fiber.Map{
-			"HxBoosted": isBoosted(c),
-		})
+		return c.Render("Index", dataFromContext(c))
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
-		return c.Render("Counter", fiber.Map{
-			"HxBoosted":    isBoosted(c),
-			"CurrentCount": 0,
-			"NextCount":    1,
-		})
+		cmap := dataFromContext(c)
+		cmap["CurrentCount"] = 0
+		cmap["NextCount"] = 1
+		return c.Render("Counter", cmap)
 	})
 	app.Get("/increment", func(c *fiber.Ctx) error {
 		count := c.QueryInt("count", 0)
@@ -120,9 +122,7 @@ func main() {
 		})
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
-		return c.Render("FetchData", fiber.Map{
-			"HxBoosted": isBoosted(c),
-		})
+		return c.Render("FetchData", dataFromContext(c))
 	})
 	app.Post("/forecasts", func(c *fiber.Ctx) error {
 		return c.Render("Forecasts", getForecasts(time.Now()))

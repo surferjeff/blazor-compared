@@ -8,6 +8,9 @@ All the Lighthouse numbers for simulated mobile are better than ASP.NET.
 * kB: 222 < 309
 * longest content full paint (seconds): 2.36 < 2.78
 
+This application will be far easier to debug in production, because it uses
+human-readable requests and responses containing HTML.
+
 ## complaints
 
 Errors in templates are discovered at runtime, not compile time.
