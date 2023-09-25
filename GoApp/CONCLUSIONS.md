@@ -1,3 +1,12 @@
+## praise
+
+I prefer explicit path handler assignment in `hello.go` over ASP.NET's
+magic attributes.  It's much easier to understand.
+
+
+
+## complaints
+
 Errors in templates are discovered at runtime, not compile time.
 
 Type mismatches in the data passed to templates is discovered only when the template is executed; not at compiled time nor when the template is loaded.
@@ -12,3 +21,13 @@ https://stackoverflow.com/questions/18276173/calling-a-template-with-several-pip
 and of course type errors are not caught until execution time. 
 
 There was no built in way to reverse the elements in an array.
+
+Documentation is frustrating. For example,
+https://pkg.go.dev/time#Time.Format says
+
+    See the documentation for the constant called Layout to see how to represent the format.
+
+I still haven't found the documentation for the constant called Layout.
+Why on earth would you not make it a hyperlink?
+
+I was never able to get automatic rebuilding (watching) to work with gow.

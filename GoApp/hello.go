@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -50,6 +51,18 @@ func (v *MyViews) Load() error {
 	error = parsePage("Counter")
 	if error != nil {
 		return error
+	}
+
+	error = parsePage("FetchData")
+	if error != nil {
+		return error
+	}
+
+	tmpl, error := template.ParseFiles("templates/Forecasts.html")
+	if error != nil {
+		return error
+	} else {
+		v.templates["Forecasts"] = tmpl
 	}
 
 	return nil
@@ -105,6 +118,14 @@ func main() {
 			"CurrentCount": count,
 			"NextCount":    count + 1,
 		})
+	})
+	app.Get("/fetchdata", func(c *fiber.Ctx) error {
+		return c.Render("FetchData", fiber.Map{
+			"HxBoosted": isBoosted(c),
+		})
+	})
+	app.Post("/forecasts", func(c *fiber.Ctx) error {
+		return c.Render("Forecasts", getForecasts(time.Now()))
 	})
 
 	log.Fatal(app.Listen(":3000"))

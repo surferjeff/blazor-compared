@@ -1,7 +1,7 @@
 {{define "title"}}Counter{{end}}
 
 {{define "main-article"}}
-<form id=increment-form hx-get="/increment">
+<form id=increment-form hx-get="/increment" hx-swap="outerHTML">
     <h1>Counter</h1>
     <p role="status">Current count: {{ .CurrentCount }}</p>
     <input type="hidden" name="count" value="{{ .NextCount }}">
