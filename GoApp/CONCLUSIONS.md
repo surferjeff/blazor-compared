@@ -1,7 +1,7 @@
 ## praise
 
 I prefer explicit path handler assignment in `hello.go` over ASP.NET's
-magic attributes.  It's much easier to understand.
+magic attributes.  It's much easier to understand.  There's just way less magic everywhere.  Nothing is happening automatically or mysteriously.
 
 All the Lighthouse numbers for simulated mobile are better than ASP.NET.
 * requests: 6 < 8
