@@ -106,9 +106,11 @@ func main() {
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
+		c.Set("Vary", "HX-Boosted")
 		return c.Render("Index", dataFromContext(c))
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
+		c.Set("Vary", "HX-Boosted")
 		cmap := dataFromContext(c)
 		cmap["CurrentCount"] = 0
 		cmap["NextCount"] = 1
@@ -122,6 +124,7 @@ func main() {
 		})
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
+		c.Set("Vary", "HX-Boosted")
 		return c.Render("FetchData", dataFromContext(c))
 	})
 	app.Post("/forecasts", func(c *fiber.Ctx) error {
