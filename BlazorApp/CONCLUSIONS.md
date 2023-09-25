@@ -1,6 +1,6 @@
 ## praise
 
-Lots of type safety.
+Templates are type checked at compile time. This is huge.
 
 Razor templates let me *flexibly* render the model.
 
@@ -15,12 +15,13 @@ If I take down the server, then an error message immediately appears in the brow
 If I then restart the server, the web page asks me to reload the page.
 
 In other words, if the websocket connection is interrupted for any reason,
-the webpage is broken and the user must reload the page.e
+the webpage is broken and the user must reload the page.
 
-This makes the usual tasks of maintaining a web farm very difficult:
+This makes the usual tasks of maintaining a webserver farm very difficult:
 1. Shutting down servers when load drops.
-2. Restarting servers with a new version of the app.
-3. A web hosting service that supports long-lived websockets.
+2. Moving load from a heavily loaded server to a lightly loaded server.
+3. Restarting servers with a new version of the app.
+4. Requires a web hosting service that supports long-lived websockets.
 
 ### Too much magic.
 
