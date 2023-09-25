@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="~/RazorApp.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @await Component.InvokeAsync("NavMenu")
-    @RenderBody()
+    @await Component.InvokeAsync(typeof(ViewComponents.MainLayout))
+    
     @* <script src="~/htmx"></script> *@
 </body>
 </html>
