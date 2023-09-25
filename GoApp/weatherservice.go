@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -19,7 +20,9 @@ var summaries = []string{
 func getForecasts(startDate time.Time) []Forecast {
 	forecasts := make([]Forecast, 5)
 	for i := 0; i < len(forecasts); i++ {
-		forecasts[i].Date = startDate.AddDate(0, 0, i).Format("Monday")
+		date := startDate.AddDate(0, 0, i)
+		forecasts[i].Date = fmt.Sprintf("%d/%d/%d",
+			date.Month(), date.Day(), date.Year())
 		forecasts[i].TemperatureC = rand.Intn(75) - 20
 		forecasts[i].TemperatureF = int(
 			32.0 + float32(forecasts[i].TemperatureC)/0.5556)
