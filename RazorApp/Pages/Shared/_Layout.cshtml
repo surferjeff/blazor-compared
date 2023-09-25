@@ -9,7 +9,21 @@
     <link rel="stylesheet" href="~/RazorApp.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @await Component.InvokeAsync(typeof(ViewComponents.MainLayout))
+    <div class="page">
+        <div class="sidebar">
+            @await Component.InvokeAsync(typeof(ViewComponents.NavMenu))
+        </div>
+
+        <main>
+            <div class="top-row px-4">
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>
+
+            <article class="content px-4">
+                @RenderBody()
+            </article>
+        </main>
+    </div>
     
     @* <script src="~/htmx"></script> *@
 </body>
