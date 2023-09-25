@@ -37,3 +37,6 @@ I still haven't found the documentation for the constant called Layout.
 Why on earth would you not make it a hyperlink?
 
 I was never able to get automatic rebuilding (watching) to work with gow.
+
+Fiber transformed the request header "HX-Boosted" into "Hx-Boosted".
+That was very difficult to track down, and I don't see what sense it makes.
