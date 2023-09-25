@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿﻿@{ ViewContext.HttpContext.Response.Headers.Add("Vary", "HX-Boosted"); }
+@if (ViewContext.HttpContext.Request.Headers["HX-Boosted"].Contains("true")) {
+    <title hx-swap-oob=title>@ViewData["Title"]</title>
+    <div class="sidebar" hx-swap-oob=".sidebar">
+        @await Component.InvokeAsync(typeof(ViewComponents.NavMenu))
+    </div>
+    <text>@RenderBody()</text>
+} else {
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -19,7 +27,7 @@
                 <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
             </div>
 
-            <article class="content px-4">
+            <article class="content px-4" id="main-article">
                 @RenderBody()
             </article>
         </main>
@@ -27,4 +35,4 @@
     
     <script src="~/htmx1.9.6.min.js"></script>
 </body>
-</html>
+</html>}
