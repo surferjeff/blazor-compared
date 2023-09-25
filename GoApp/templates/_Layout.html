@@ -1,6 +1,6 @@
 {{if .HxBoosted}}
 <title hx-swap-oob="title">{{block "title" .}}{{end}}</title>
-{{template "main-article" .}}
+{{template "main-layout" .}}
 {{else}}<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +13,9 @@
     <title>{{block "title" .}}{{end}}</title>
 </head>
 <body>
-    {{template "main-layout" .}}
+    <div id="main-layout">
+        {{template "main-layout" .}}
+    </div>
     <script src="/htmx1.9.6.min.js"></script>
 </body>
 </html>{{end}}
