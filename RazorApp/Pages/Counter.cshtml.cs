@@ -9,7 +9,10 @@ public class CounterModel : PageModel {
 
     public IActionResult OnGet() {
         Path = HttpContext.Request.Path;
-        if (HttpContext.Request.Headers["HX-Request"].Contains("true")) {
+        var headers = HttpContext.Request.Headers;
+        if (headers["HX-Request"].Contains("true")
+            && !headers["HX-Boosted"].Contains("true"))
+        {
             Layout = "_LayoutBodyOnly";
         }
         return Page();

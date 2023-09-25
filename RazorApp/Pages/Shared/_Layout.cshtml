@@ -1,7 +1,7 @@
-﻿﻿@{ ViewContext.HttpContext.Response.Headers.Add("Vary", "HX-Boosted"); }
+﻿@{ ViewContext.HttpContext.Response.Headers.Add("Vary", "HX-Boosted"); }
 @if (ViewContext.HttpContext.Request.Headers["HX-Boosted"].Contains("true")) {
     <title hx-swap-oob=title>@ViewData["Title"]</title>
-    <div class="sidebar" hx-swap-oob=".sidebar">
+    <div class="sidebar" id=sidebar hx-swap-oob="#sidebar">
         @await Component.InvokeAsync(typeof(ViewComponents.NavMenu))
     </div>
     <text>@RenderBody()</text>
@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="page">
-        <div class="sidebar">
+        <div class="sidebar" id=sidebar>
             @await Component.InvokeAsync(typeof(ViewComponents.NavMenu))
         </div>
 
