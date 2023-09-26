@@ -2,7 +2,12 @@
 @model CounterModel
 @{
     ViewData["Title"] = "Counter";
-    Layout = @Model.Layout;
+    var headers = ViewContext.HttpContext.Request.Headers;
+    if (headers["HX-Request"].Contains("true")
+        && !headers["HX-Boosted"].Contains("true"))
+    {
+        Layout = "_LayoutBodyOnly";
+    }
 }
 
 <form id=increment-form hx-get='@Model.Path' hx-swap="outerHTML">

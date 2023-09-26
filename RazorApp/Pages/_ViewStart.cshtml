@@ -1,3 +1,5 @@
 ﻿@{
-    Layout = "_Layout";
+    ViewContext.HttpContext.Response.Headers.Add("Vary", "HX-Boosted");
+    Layout = ViewContext.HttpContext.Request.Headers["HX-Boosted"].Contains("true") 
+        ? "_LayoutBoosted": "_Layout";
 }
