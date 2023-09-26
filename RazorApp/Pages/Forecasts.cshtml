@@ -5,7 +5,7 @@
 @using BlazorApp.Data
 @inject WeatherForecastService ForecastService
 
-<table class="table" hx-trigger="load delay:2s" hx-get="/forecasts" hx-swap="outerHTML">
+<table class="table" hx-trigger="every 2s" hx-get="/forecasts" hx-swap="outerHTML">
     <thead>
         <tr>
             <th>Date</th>

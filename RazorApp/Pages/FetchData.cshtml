@@ -7,6 +7,6 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
-<p hx-trigger="load delay:2s" hx-get="/forecasts" hx-swap="outerHTML">
+<p hx-trigger="every 2s" hx-get="/forecasts" hx-swap="outerHTML">
     <em>Loading...</em>
 </p>
