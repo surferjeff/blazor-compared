@@ -4,7 +4,7 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
-<p hx-trigger="load" hx-post="/forecasts" hx-swap="outerHTML">
+<p hx-trigger="load delay:2s" hx-post="/forecasts" hx-swap="outerHTML">
     <em>Loading...</em>
 </p>
 {{end}}
