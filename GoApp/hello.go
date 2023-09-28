@@ -48,6 +48,11 @@ func (v *MyViews) Load() error {
 		return error
 	}
 
+	error = parsePage("About")
+	if error != nil {
+		return error
+	}
+
 	error = parsePage("Counter")
 	if error != nil {
 		return error
@@ -108,6 +113,10 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
 		return c.Render("Index", dataFromContext(c))
+	})
+	app.Get("/about", func(c *fiber.Ctx) error {
+		c.Set("Vary", "HX-Boosted")
+		return c.Render("About", dataFromContext(c))
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
