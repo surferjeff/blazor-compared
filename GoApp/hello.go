@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -75,6 +76,10 @@ func (v *MyViews) Load() error {
 
 func (v *MyViews) Render(w io.Writer, templateName string,
 	data interface{}, _ignored ...string) error {
+	if templateName == "Hello" {
+		component := hello("Jeff")
+		return component.Render(context.Background(), w)
+	}
 	tmpls := strings.Split(templateName, " ")
 	if len(tmpls) == 1 {
 		tmpl := v.templates[templateName]
@@ -110,6 +115,10 @@ func main() {
 
 	app.Static("/", "./wwwroot")
 
+	app.Get("/hello", func(c *fiber.Ctx) error {
+		c.Set("Vary", "HX-Boosted")
+		return c.Render("Hello", dataFromContext(c))
+	})
 	app.Get("/", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
 		return c.Render("Index", dataFromContext(c))
