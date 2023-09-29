@@ -47,11 +47,11 @@ templ main_layout(nav_menu, main_article templ.Component) {
 templ nav_item(request_path string, text string, href string) {
     <div class="nav-item px-3">
         if href == request_path {
-            <a class="nav-link" href={templ.SafeURL(href)}>
+            <a class="nav-link active" href={templ.SafeURL(href)}>
                 <span class="oi oi-home" aria-hidden="true"></span> {text}
             </a>
         } else {
-            <a class="nav-link active" href={templ.SafeURL(href)}>
+            <a class="nav-link" href={templ.SafeURL(href)}>
                 <span class="oi oi-home" aria-hidden="true"></span> {text}
             </a>
         }
@@ -79,4 +79,10 @@ templ nav_menu(path string) {
             @nav_item(path, "Fetch data", "/fetchdata")
         </nav>
     </div>
+}
+
+templ index() {
+    <h1>Hello, world!</h1>
+
+    <p>Welcome to your new app.</p>
 }

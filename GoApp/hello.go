@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -75,6 +76,16 @@ func (v *MyViews) Load() error {
 
 func (v *MyViews) Render(w io.Writer, templateName string,
 	data interface{}, _ignored ...string) error {
+	if templateName == "Index" {
+		c := data.(*fiber.Ctx)
+		main := main_layout(nav_menu(c.Route().Path), index())
+		headers := c.GetReqHeaders()
+		layout := layout("Home", main)
+		if headers["Hx-Boosted"] == "true" {
+			layout = boosted_layout("Home", main)
+		}
+		return layout.Render(context.Background(), w)
+	}
 	tmpls := strings.Split(templateName, " ")
 	if len(tmpls) == 1 {
 		tmpl := v.templates[templateName]
@@ -116,7 +127,7 @@ func main() {
 	})
 	app.Get("/", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
-		return c.Render("Index", dataFromContext(c))
+		return c.Render("Index", c)
 	})
 	app.Get("/about", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
