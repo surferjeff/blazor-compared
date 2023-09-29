@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -76,10 +75,6 @@ func (v *MyViews) Load() error {
 
 func (v *MyViews) Render(w io.Writer, templateName string,
 	data interface{}, _ignored ...string) error {
-	if templateName == "Hello" {
-		component := hello("Jeff")
-		return component.Render(context.Background(), w)
-	}
 	tmpls := strings.Split(templateName, " ")
 	if len(tmpls) == 1 {
 		tmpl := v.templates[templateName]
