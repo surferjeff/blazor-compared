@@ -145,7 +145,7 @@ func main_layout(nav_menu, main_article templ.Component) templ.Component {
 	})
 }
 
-func nav_menu(path string) templ.Component {
+func nav_link(request_path string, text string, href string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -158,128 +158,99 @@ func nav_menu(path string) templ.Component {
 			var_8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var_9 := `root_class := "nav-link"`
-		_, err = templBuffer.WriteString(var_9)
-		if err != nil {
-			return err
-		}
-		var_10 := `counter_class := "nav-link"`
-		_, err = templBuffer.WriteString(var_10)
-		if err != nil {
-			return err
-		}
-		var_11 := `fetch_data_class := "nav-link"`
-		_, err = templBuffer.WriteString(var_11)
-		if err != nil {
-			return err
-		}
-		if path == "/" {
-			var_12 := `root_class += " active"`
-			_, err = templBuffer.WriteString(var_12)
+		if href == request_path {
+			_, err = templBuffer.WriteString("<div class=\"nav-item px-3\"><a class=\"nav-link\" href=\"")
 			if err != nil {
 				return err
 			}
-		} else if path == "/counter" {
-			var_13 := `counter_class += " active"`
-			_, err = templBuffer.WriteString(var_13)
+			var var_9 templ.SafeURL = templ.SafeURL(href)
+			_, err = templBuffer.WriteString(templ.EscapeString(string(var_9)))
 			if err != nil {
 				return err
 			}
-		} else if path == "/fetchdata" {
-			var_14 := `fetch_data_class += "active"`
-			_, err = templBuffer.WriteString(var_14)
+			_, err = templBuffer.WriteString("\"><span class=\"oi oi-home\" aria-hidden=\"true\"></span>")
+			if err != nil {
+				return err
+			}
+			var var_10 string = text
+			_, err = templBuffer.WriteString(templ.EscapeString(var_10))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</a></div>")
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err = templBuffer.WriteString("<div class=\"nav-item px-3\"><a class=\"nav-link active\" href=\"")
+			if err != nil {
+				return err
+			}
+			var var_11 templ.SafeURL = templ.SafeURL(href)
+			_, err = templBuffer.WriteString(templ.EscapeString(string(var_11)))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("\"><span class=\"oi oi-home\" aria-hidden=\"true\"></span>")
+			if err != nil {
+				return err
+			}
+			var var_12 string = text
+			_, err = templBuffer.WriteString(templ.EscapeString(var_12))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</a></div>")
 			if err != nil {
 				return err
 			}
 		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func nav_menu(path string) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_13 := templ.GetChildren(ctx)
+		if var_13 == nil {
+			var_13 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		_, err = templBuffer.WriteString("<div class=\"navbar-top-row ps-3 navbar navbar-dark\"><div class=\"container-fluid\"><a class=\"navbar-brand\" href=\"\">")
 		if err != nil {
 			return err
 		}
-		var_15 := `BlazorApp`
-		_, err = templBuffer.WriteString(var_15)
+		var_14 := `BlazorApp`
+		_, err = templBuffer.WriteString(var_14)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</a><label for=\"toggle-menu\"><div title=\"Navigation menu\" class=\"navbar-toggler\"><span class=\"navbar-toggler-icon\"></span></div></label></div></div><input type=\"checkbox\" id=\"toggle-menu\" class=\"visually-hidden\"><div id=\"nav-menu\"><nav class=\"flex-column\" hx-boost=\"true\" hx-target=\"#main-layout\"><div class=\"nav-item px-3\">")
+		_, err = templBuffer.WriteString("</a><label for=\"toggle-menu\"><div title=\"Navigation menu\" class=\"navbar-toggler\"><span class=\"navbar-toggler-icon\"></span></div></label></div></div><input type=\"checkbox\" id=\"toggle-menu\" class=\"visually-hidden\"><div id=\"nav-menu\"><nav class=\"flex-column\" hx-boost=\"true\" hx-target=\"#main-layout\">")
 		if err != nil {
 			return err
 		}
-		var var_16 = []any{root_class}
-		err = templ.RenderCSSItems(ctx, templBuffer, var_16...)
+		err = nav_link(path, "Home", "/").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("<a class=\"")
+		err = nav_link(path, "Counter", "/counter").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_16).String()))
+		err = nav_link(path, "Fetch data", "/fetchdata").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("\" href=\"/\"><span class=\"oi oi-home\" aria-hidden=\"true\"></span> ")
-		if err != nil {
-			return err
-		}
-		var_17 := `Home`
-		_, err = templBuffer.WriteString(var_17)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a></div><div class=\"nav-item px-3\">")
-		if err != nil {
-			return err
-		}
-		var var_18 = []any{counter_class}
-		err = templ.RenderCSSItems(ctx, templBuffer, var_18...)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("<a class=\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_18).String()))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\" href=\"/counter\"><span class=\"oi oi-plus\" aria-hidden=\"true\"></span> ")
-		if err != nil {
-			return err
-		}
-		var_19 := `Counter`
-		_, err = templBuffer.WriteString(var_19)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a></div><div class=\"nav-item px-3\">")
-		if err != nil {
-			return err
-		}
-		var var_20 = []any{fetch_data_class}
-		err = templ.RenderCSSItems(ctx, templBuffer, var_20...)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("<a class=\"")
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_20).String()))
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("\" href=\"/fetchdata\"><span class=\"oi oi-list-rich\" aria-hidden=\"true\"></span> ")
-		if err != nil {
-			return err
-		}
-		var_21 := `Fetch data`
-		_, err = templBuffer.WriteString(var_21)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a></div></nav></div>")
+		_, err = templBuffer.WriteString("</nav></div>")
 		if err != nil {
 			return err
 		}
