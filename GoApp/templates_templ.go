@@ -145,7 +145,7 @@ func main_layout(nav_menu, main_article templ.Component) templ.Component {
 	})
 }
 
-func nav_link(request_path string, text string, href string) templ.Component {
+func nav_item(request_path string, text string, href string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -246,15 +246,15 @@ func nav_menu(path string) templ.Component {
 		if err != nil {
 			return err
 		}
-		err = nav_link(path, "Home", "/").Render(ctx, templBuffer)
+		err = nav_item(path, "Home", "/").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		err = nav_link(path, "Counter", "/counter").Render(ctx, templBuffer)
+		err = nav_item(path, "Counter", "/counter").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		err = nav_link(path, "Fetch data", "/fetchdata").Render(ctx, templBuffer)
+		err = nav_item(path, "Fetch data", "/fetchdata").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
