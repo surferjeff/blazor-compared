@@ -158,8 +158,12 @@ func nav_link(request_path string, text string, href string) templ.Component {
 			var_8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<div class=\"nav-item px-3\">")
+		if err != nil {
+			return err
+		}
 		if href == request_path {
-			_, err = templBuffer.WriteString("<div class=\"nav-item px-3\"><a class=\"nav-link\" href=\"")
+			_, err = templBuffer.WriteString("<a class=\"nav-link\" href=\"")
 			if err != nil {
 				return err
 			}
@@ -177,12 +181,12 @@ func nav_link(request_path string, text string, href string) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</a></div>")
+			_, err = templBuffer.WriteString("</a>")
 			if err != nil {
 				return err
 			}
 		} else {
-			_, err = templBuffer.WriteString("<div class=\"nav-item px-3\"><a class=\"nav-link active\" href=\"")
+			_, err = templBuffer.WriteString("<a class=\"nav-link active\" href=\"")
 			if err != nil {
 				return err
 			}
@@ -200,10 +204,14 @@ func nav_link(request_path string, text string, href string) templ.Component {
 			if err != nil {
 				return err
 			}
-			_, err = templBuffer.WriteString("</a></div>")
+			_, err = templBuffer.WriteString("</a>")
 			if err != nil {
 				return err
 			}
+		}
+		_, err = templBuffer.WriteString("</div>")
+		if err != nil {
+			return err
 		}
 		if !templIsBuffer {
 			_, err = templBuffer.WriteTo(w)
