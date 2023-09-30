@@ -12,10 +12,10 @@ import (
 
 func wrapWithLayout(c *fiber.Ctx, title string,
 	component templ.Component) templ.Component {
-	main := main_layout(nav_menu(c.Route().Path), component)
+	main := mainLayout(navMenu(c.Route().Path), component)
 	headers := c.GetReqHeaders()
 	if headers["Hx-Boosted"] == "true" {
-		return boosted_layout(title, main)
+		return boostedLayout(title, main)
 	} else {
 		return layout(title, main)
 	}
