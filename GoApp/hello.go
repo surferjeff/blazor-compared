@@ -151,10 +151,6 @@ func main() {
 
 	app.Static("/", "./wwwroot")
 
-	app.Get("/hello", func(c *fiber.Ctx) error {
-		c.Set("Vary", "HX-Boosted")
-		return c.Render("Hello", dataFromContext(c))
-	})
 	app.Get("/", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
 		return RenderC(c, wrapWithLayout(c, "Home", index()))
