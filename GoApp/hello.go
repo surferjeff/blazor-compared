@@ -88,16 +88,6 @@ func wrapWithLayout(c *fiber.Ctx, title string,
 
 func (v *MyViews) Render(w io.Writer, templateName string,
 	data interface{}, _ignored ...string) error {
-	if templateName == "Index" {
-		c := data.(*fiber.Ctx)
-		layout := wrapWithLayout(c, "Home", index())
-		return layout.Render(context.Background(), w)
-	}
-	if templateName == "Counter" {
-		c := data.(*fiber.Ctx)
-		layout := wrapWithLayout(c, "Counter", counter(0))
-		return layout.Render(context.Background(), w)
-	}
 	tmpls := strings.Split(templateName, " ")
 	if len(tmpls) == 1 {
 		tmpl := v.templates[templateName]
@@ -147,6 +137,11 @@ func (v *TemplViews) Render(w io.Writer, templateName string,
 	}
 }
 
+// Render Component.
+func RenderC(c *fiber.Ctx, component templ.Component) error {
+	return c.Render("---", component)
+}
+
 func main() {
 	templViews := new(TemplViews)
 	templViews.fallback = new(MyViews)
@@ -162,7 +157,7 @@ func main() {
 	})
 	app.Get("/", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
-		return c.Render("---", wrapWithLayout(c, "Home", index()))
+		return RenderC(c, wrapWithLayout(c, "Home", index()))
 	})
 	app.Get("/about", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
@@ -170,7 +165,7 @@ func main() {
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
-		return c.Render("Counter", c)
+		return RenderC(c, wrapWithLayout(c, "Counter", counter(0)))
 	})
 	app.Get("/increment", func(c *fiber.Ctx) error {
 		count := c.QueryInt("count", 0)
