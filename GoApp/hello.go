@@ -126,10 +126,57 @@ func dataFromContext(c *fiber.Ctx) fiber.Map {
 	return cmap
 }
 
-func main() {
-	app := fiber.New(fiber.Config{
-		Views: new(MyViews),
+type Handler func(*fiber.Ctx) (templ.Component, error)
+
+type TemplViews struct {
+	templates map[string]Handler
+	fallback  fiber.Views
+}
+
+func (v *TemplViews) Load() error {
+	if v.fallback != nil {
+		return v.fallback.Load()
+	}
+	return nil
+}
+
+func (v *TemplViews) Render(w io.Writer, templateName string,
+	data interface{}, args ...string) error {
+	f := v.templates[templateName]
+	if f != nil {
+		c := data.(*fiber.Ctx)
+		component, err := f(c)
+		if err != nil {
+			err = component.Render(context.Background(), w)
+		}
+		return err
+	} else {
+		return v.fallback.Render(w, templateName, data, args...)
+	}
+}
+
+type AppBuilder struct {
+	views *TemplViews
+	app   *fiber.App
+}
+
+func (b AppBuilder) Get(path string, handler Handler) fiber.Router {
+	b.views.templates[path] = handler
+	return b.app.Get(path, func(c *fiber.Ctx) error {
+		return c.Render(path, c)
 	})
+}
+
+func main() {
+	templViews := new(TemplViews)
+	templViews.templates = make(map[string]Handler)
+	templViews.fallback = new(MyViews)
+	app := fiber.New(fiber.Config{
+		Views: templViews,
+	})
+	builder := new(AppBuilder)
+	builder.app = app
+	builder.views = templViews
 
 	app.Static("/", "./wwwroot")
 
@@ -137,9 +184,9 @@ func main() {
 		c.Set("Vary", "HX-Boosted")
 		return c.Render("Hello", dataFromContext(c))
 	})
-	app.Get("/", func(c *fiber.Ctx) error {
+	builder.Get("/", func(c *fiber.Ctx) (templ.Component, error) {
 		c.Set("Vary", "HX-Boosted")
-		return c.Render("Index", c)
+		return wrapWithLayout(c, "Home", index()), nil
 	})
 	app.Get("/about", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
