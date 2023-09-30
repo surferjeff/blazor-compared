@@ -36,7 +36,7 @@ templ main_layout(nav_menu, main_article templ.Component) {
 
         <main>
             <div class="top-row px-4">
-                <a href="/about">About</a>
+                <a href="/about" hx-boost="true" hx-target="#main-layout">About</a>
             </div>
 
             <article class="content px-4 article" id="main-article">
@@ -96,4 +96,17 @@ templ counter(count int) {
         <input type="hidden" name="count" value={ strconv.Itoa(count + 1)} />
         <input type="submit" class="btn btn-primary" id="ClickMeButton" value="Click me" />
     </form>
+}
+
+css bigLink() {
+    display: block;
+    font-size: x-large;
+    text-decoration: none;
+    text-align: center;
+}
+
+templ about() {
+    <p>I'm built with</p>
+    <a class={bigLink} href="https://gofiber.io/">Go Fiber</a>
+    <a class={bigLink} href="https://htmx.org/">HTMX</a>
 }

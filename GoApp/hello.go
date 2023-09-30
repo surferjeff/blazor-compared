@@ -161,7 +161,7 @@ func main() {
 	})
 	app.Get("/about", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
-		return c.Render("About", dataFromContext(c))
+		return RenderC(c, wrapWithLayout(c, "About", about()))
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")

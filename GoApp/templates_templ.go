@@ -8,6 +8,7 @@ import "github.com/a-h/templ"
 import "context"
 import "io"
 import "bytes"
+import "strings"
 
 import "strconv"
 
@@ -119,7 +120,7 @@ func main_layout(nav_menu, main_article templ.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</div><main><div class=\"top-row px-4\"><a href=\"/about\">")
+		_, err = templBuffer.WriteString("</div><main><div class=\"top-row px-4\"><a href=\"/about\" hx-boost=\"true\" hx-target=\"#main-layout\">")
 		if err != nil {
 			return err
 		}
@@ -358,6 +359,104 @@ func counter(count int) templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString("\"><input type=\"submit\" class=\"btn btn-primary\" id=\"ClickMeButton\" value=\"Click me\"></form>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func bigLink() templ.CSSClass {
+	var templCSSBuilder strings.Builder
+	templCSSBuilder.WriteString(`display:block;`)
+	templCSSBuilder.WriteString(`font-size:x-large;`)
+	templCSSBuilder.WriteString(`text-decoration:none;`)
+	templCSSBuilder.WriteString(`text-align:center;`)
+	templCSSID := templ.CSSID(`bigLink`, templCSSBuilder.String())
+	return templ.ComponentCSSClass{
+		ID:    templCSSID,
+		Class: templ.SafeCSS(`.` + templCSSID + `{` + templCSSBuilder.String() + `}`),
+	}
+}
+
+func about() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_22 := templ.GetChildren(ctx)
+		if var_22 == nil {
+			var_22 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<p>")
+		if err != nil {
+			return err
+		}
+		var_23 := `I'm built with`
+		_, err = templBuffer.WriteString(var_23)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</p>")
+		if err != nil {
+			return err
+		}
+		var var_24 = []any{bigLink}
+		err = templ.RenderCSSItems(ctx, templBuffer, var_24...)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("<a class=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_24).String()))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\" href=\"https://gofiber.io/\">")
+		if err != nil {
+			return err
+		}
+		var_25 := `Go Fiber`
+		_, err = templBuffer.WriteString(var_25)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
+		if err != nil {
+			return err
+		}
+		var var_26 = []any{bigLink}
+		err = templ.RenderCSSItems(ctx, templBuffer, var_26...)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("<a class=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_26).String()))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\" href=\"https://htmx.org/\">")
+		if err != nil {
+			return err
+		}
+		var_27 := `HTMX`
+		_, err = templBuffer.WriteString(var_27)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a>")
 		if err != nil {
 			return err
 		}
