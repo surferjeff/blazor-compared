@@ -172,7 +172,7 @@ func main() {
 		return RenderC(c, wrapWithLayout(c, "Weather forecast", fetchData()))
 	})
 	app.Post("/forecasts", func(c *fiber.Ctx) error {
-		return c.Render("Forecasts", getForecasts(time.Now()))
+		return RenderC(c, forecasts(getForecasts(time.Now())))
 	})
 
 	log.Fatal(app.Listen(":3000"))

@@ -135,3 +135,26 @@ templ fetchData() {
         <em>Loading...</em>
     </p>
 }
+
+templ forecasts(forecasts []Forecast) {
+    <table class="table" hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            for _, forecast := range forecasts { 
+                <tr>
+                    <td>{forecast.Date}</td>
+                    <td>{strconv.Itoa(forecast.TemperatureC)}</td>
+                    <td>{strconv.Itoa(forecast.TemperatureF)}</td>
+                    <td>{forecast.Summary}</td>
+                </tr>
+            }
+        </tbody>
+    </table>    
+}

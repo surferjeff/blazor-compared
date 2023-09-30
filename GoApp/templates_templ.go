@@ -581,3 +581,109 @@ func fetchData() templ.Component {
 		return err
 	})
 }
+
+func forecasts(forecasts []Forecast) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_37 := templ.GetChildren(ctx)
+		if var_37 == nil {
+			var_37 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<table class=\"table\" hx-trigger=\"every 2s\" hx-post=\"/forecasts\" hx-swap=\"outerHTML\"><thead><tr><th>")
+		if err != nil {
+			return err
+		}
+		var_38 := `Date`
+		_, err = templBuffer.WriteString(var_38)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th><th>")
+		if err != nil {
+			return err
+		}
+		var_39 := `Temp. (C)`
+		_, err = templBuffer.WriteString(var_39)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th><th>")
+		if err != nil {
+			return err
+		}
+		var_40 := `Temp. (F)`
+		_, err = templBuffer.WriteString(var_40)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th><th>")
+		if err != nil {
+			return err
+		}
+		var_41 := `Summary`
+		_, err = templBuffer.WriteString(var_41)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</th></tr></thead><tbody>")
+		if err != nil {
+			return err
+		}
+		for _, forecast := range forecasts {
+			_, err = templBuffer.WriteString("<tr><td>")
+			if err != nil {
+				return err
+			}
+			var var_42 string = forecast.Date
+			_, err = templBuffer.WriteString(templ.EscapeString(var_42))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</td><td>")
+			if err != nil {
+				return err
+			}
+			var var_43 string = strconv.Itoa(forecast.TemperatureC)
+			_, err = templBuffer.WriteString(templ.EscapeString(var_43))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</td><td>")
+			if err != nil {
+				return err
+			}
+			var var_44 string = strconv.Itoa(forecast.TemperatureF)
+			_, err = templBuffer.WriteString(templ.EscapeString(var_44))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</td><td>")
+			if err != nil {
+				return err
+			}
+			var var_45 string = forecast.Summary
+			_, err = templBuffer.WriteString(templ.EscapeString(var_45))
+			if err != nil {
+				return err
+			}
+			_, err = templBuffer.WriteString("</td></tr>")
+			if err != nil {
+				return err
+			}
+		}
+		_, err = templBuffer.WriteString("</tbody></table>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
