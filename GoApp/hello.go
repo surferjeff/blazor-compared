@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -74,16 +75,22 @@ func (v *MyViews) Load() error {
 	return nil
 }
 
+func wrapWithLayout(c *fiber.Ctx, title string,
+	component templ.Component) templ.Component {
+	main := main_layout(nav_menu(c.Route().Path), component)
+	headers := c.GetReqHeaders()
+	if headers["Hx-Boosted"] == "true" {
+		return boosted_layout(title, main)
+	} else {
+		return layout(title, main)
+	}
+}
+
 func (v *MyViews) Render(w io.Writer, templateName string,
 	data interface{}, _ignored ...string) error {
 	if templateName == "Index" {
 		c := data.(*fiber.Ctx)
-		main := main_layout(nav_menu(c.Route().Path), index())
-		headers := c.GetReqHeaders()
-		layout := layout("Home", main)
-		if headers["Hx-Boosted"] == "true" {
-			layout = boosted_layout("Home", main)
-		}
+		layout := wrapWithLayout(c, "Home", index())
 		return layout.Render(context.Background(), w)
 	}
 	tmpls := strings.Split(templateName, " ")
