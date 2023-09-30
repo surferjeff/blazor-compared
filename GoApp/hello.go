@@ -169,10 +169,7 @@ func main() {
 	})
 	app.Get("/increment", func(c *fiber.Ctx) error {
 		count := c.QueryInt("count", 0)
-		return c.Render("Counter main-article", fiber.Map{
-			"CurrentCount": count,
-			"NextCount":    count + 1,
-		})
+		return RenderC(c, counter(count))
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
