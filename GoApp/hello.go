@@ -169,7 +169,7 @@ func main() {
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
-		return c.Render("FetchData", dataFromContext(c))
+		return RenderC(c, wrapWithLayout(c, "Weather forecast", fetchData()))
 	})
 	app.Post("/forecasts", func(c *fiber.Ctx) error {
 		return c.Render("Forecasts", getForecasts(time.Now()))

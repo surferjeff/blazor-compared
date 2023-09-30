@@ -125,3 +125,13 @@ templ surveyPrompt(title string) {
         and tell us what you think.
     </div>    
 }
+
+templ fetchData() {
+    <h1>Weather forecast</h1>
+
+    <p>This component demonstrates fetching data from a service.</p>
+
+    <p hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+        <em>Loading...</em>
+    </p>
+}

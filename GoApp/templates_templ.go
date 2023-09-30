@@ -530,3 +530,54 @@ func surveyPrompt(title string) templ.Component {
 		return err
 	})
 }
+
+func fetchData() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_33 := templ.GetChildren(ctx)
+		if var_33 == nil {
+			var_33 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<h1>")
+		if err != nil {
+			return err
+		}
+		var_34 := `Weather forecast`
+		_, err = templBuffer.WriteString(var_34)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1><p>")
+		if err != nil {
+			return err
+		}
+		var_35 := `This component demonstrates fetching data from a service.`
+		_, err = templBuffer.WriteString(var_35)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</p><p hx-trigger=\"every 2s\" hx-post=\"/forecasts\" hx-swap=\"outerHTML\"><em>")
+		if err != nil {
+			return err
+		}
+		var_36 := `Loading...`
+		_, err = templBuffer.WriteString(var_36)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</em></p>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
