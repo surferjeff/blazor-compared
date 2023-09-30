@@ -93,6 +93,11 @@ func (v *MyViews) Render(w io.Writer, templateName string,
 		layout := wrapWithLayout(c, "Home", index())
 		return layout.Render(context.Background(), w)
 	}
+	if templateName == "Counter" {
+		c := data.(*fiber.Ctx)
+		layout := wrapWithLayout(c, "Counter", counter(0))
+		return layout.Render(context.Background(), w)
+	}
 	tmpls := strings.Split(templateName, " ")
 	if len(tmpls) == 1 {
 		tmpl := v.templates[templateName]
@@ -142,10 +147,7 @@ func main() {
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
 		c.Set("Vary", "HX-Boosted")
-		cmap := dataFromContext(c)
-		cmap["CurrentCount"] = 0
-		cmap["NextCount"] = 1
-		return c.Render("Counter", cmap)
+		return c.Render("Counter", c)
 	})
 	app.Get("/increment", func(c *fiber.Ctx) error {
 		count := c.QueryInt("count", 0)

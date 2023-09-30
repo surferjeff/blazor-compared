@@ -9,6 +9,8 @@ import "context"
 import "io"
 import "bytes"
 
+import "strconv"
+
 func layout(title string, main templ.Component) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
@@ -301,6 +303,61 @@ func index() templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString("</p>")
+		if err != nil {
+			return err
+		}
+		if !templIsBuffer {
+			_, err = templBuffer.WriteTo(w)
+		}
+		return err
+	})
+}
+
+func counter(count int) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		templBuffer, templIsBuffer := w.(*bytes.Buffer)
+		if !templIsBuffer {
+			templBuffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templBuffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		var_18 := templ.GetChildren(ctx)
+		if var_18 == nil {
+			var_18 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, err = templBuffer.WriteString("<form id=\"increment-form\" hx-get=\"/increment\" hx-swap=\"outerHTML\"><h1>")
+		if err != nil {
+			return err
+		}
+		var_19 := `Counter`
+		_, err = templBuffer.WriteString(var_19)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</h1><p role=\"status\">")
+		if err != nil {
+			return err
+		}
+		var_20 := `Current count: `
+		_, err = templBuffer.WriteString(var_20)
+		if err != nil {
+			return err
+		}
+		var var_21 string = strconv.Itoa(count)
+		_, err = templBuffer.WriteString(templ.EscapeString(var_21))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</p><input type=\"hidden\" name=\"count\" value=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(strconv.Itoa(count + 1)))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"><input type=\"submit\" class=\"btn btn-primary\" id=\"ClickMeButton\" value=\"Click me\"></form>")
 		if err != nil {
 			return err
 		}
