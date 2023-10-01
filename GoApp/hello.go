@@ -8,6 +8,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 type TemplViews struct {
@@ -45,7 +46,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Views: templViews,
 	})
-
+	app.Use(logger.New())
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
