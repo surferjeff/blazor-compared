@@ -1,32 +1,29 @@
 package main
 
 import (
-	"context"
-	"io"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/valyala/bytebufferpool"
 )
-
-type TemplViews struct {
-}
-
-func (v *TemplViews) Load() error {
-	return nil
-}
-
-func (v *TemplViews) Render(w io.Writer, templateName string,
-	data interface{}, args ...string) error {
-	component := data.(templ.Component)
-	return component.Render(context.Background(), w)
-}
 
 // Render Component.
 func RenderC(c *fiber.Ctx, component templ.Component) error {
-	return c.Render("", component)
+	// Get new buffer from pool
+	buf := bytebufferpool.Get()
+	defer bytebufferpool.Put(buf)
+	if err := component.Render(c.Context(), buf); err != nil {
+		return fmt.Errorf("failed to render: %w", err)
+	}
+
+	c.Set("Content-Type", "text/html")
+	c.Context().SetBody(buf.Bytes())
+
+	return nil
 }
 
 // Wraps with Layout.
@@ -42,10 +39,7 @@ func RenderPage(c *fiber.Ctx, title string,
 }
 
 func main() {
-	templViews := new(TemplViews)
-	app := fiber.New(fiber.Config{
-		Views: templViews,
-	})
+	app := fiber.New(fiber.Config{})
 	app.Use(logger.New())
 	app.Static("/", "./wwwroot")
 
