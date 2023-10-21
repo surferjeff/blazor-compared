@@ -25,6 +25,12 @@ let layout (atitle: string) (content: XmlNode list) =
         ]
     ]
 
+let _hx_swap_oob (targetCssSelector: string) = 
+    KeyValue("hx-swap-oob", targetCssSelector)
+
+let boostedLayout (atitle: string) (content: XmlNode list) =
+    title [ _hx_swap_oob "title" ] [ encodedText atitle ] :: content
+
 let partial () =
     h1 [] [ encodedText "GiraffeApp" ]
 
