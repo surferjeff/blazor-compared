@@ -2,15 +2,27 @@ module Views
 
 open Giraffe.ViewEngine
 
-let layout (content: XmlNode list) =
+let layout (atitle: string) (content: XmlNode list) =
     html [] [
-        head [] [
-            title []  [ encodedText "GiraffeApp" ]
+        head [ _lang "en" ] [
+            meta [ _charset "utf-8" ]
+            meta [ _name "viewport"
+                   _content "width=device-width, initial-scale=1.0" ]
+            title []  [ encodedText atitle ]
             link [ _rel  "stylesheet"
                    _type "text/css"
-                   _href "/main.css" ]
+                   _href "/css/BlazorApp.styles.css" ]
+            link [ _rel  "stylesheet"
+                   _type "text/css"
+                   _href "/css/bootstrap/bootstrap.min.css" ]
+            link [ _rel  "stylesheet"
+                   _type "text/css"
+                   _href "/css/open-iconic/font/css/open-iconic-bootstrap.min.css" ]                   
         ]
-        body [] content
+        body [] [
+            div [ _id "main-layout"] content
+            script [ _src "/htmx1.9.6.min.js" ] []
+        ]
     ]
 
 let partial () =
@@ -20,4 +32,4 @@ let index (message : string) =
     [
         partial()
         p [] [ encodedText message ]
-    ] |> layout
+    ] |> layout "Yes!"
