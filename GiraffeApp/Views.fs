@@ -2,6 +2,12 @@ module Views
 
 open Giraffe.ViewEngine
 
+// HTMX Attributes
+let _hx_swap_oob  = attr "hx-swap-oob"
+let _hx_target  = attr "hx-target"
+let _hx_boost  = attr "hx-swap-oob"
+
+// Layouts
 let layout (atitle: string) (content: XmlNode list) =
     html [] [
         head [ _lang "en" ] [
@@ -25,16 +31,6 @@ let layout (atitle: string) (content: XmlNode list) =
         ]
     ]
 
-// HTMX Attributes
-let _hx_swap_oob (targetCssSelector: string) = 
-    KeyValue("hx-swap-oob", targetCssSelector)
-
-let _hx_target (targetCssSelector: string) = 
-    KeyValue("hx-target", targetCssSelector)
-
-let _hx_boost (boost: bool) = 
-    KeyValue("hx-swap-oob", boost.ToString())
-
 let boostedLayout (atitle: string) (content: XmlNode list) =
     title [ _hx_swap_oob "title" ] [ encodedText atitle ] :: content
 
@@ -48,6 +44,14 @@ let mainLayout (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
                     _hx_target "#main-layout" ] [ encodedText "About" ] ]
             article [ _class "content px-4 article"
                       _id "main-article" ] mainArticle ] ] ]
+
+// Navigation menu.
+let navItem (requestPath: string) (text: string) (href: string) = 
+    let aclass = if href = requestPath then "nav-link active" else "nav-link"
+    [ div [ _class "nav-item px-3" ] [
+        a [ _class aclass; _href href ]
+          [ span [ _class "oi oi-home"; attr "aria-hidden" "true" ]
+                 [ encodedText text ] ] ] ]
 
 
 /////////////////////////////////////////////////////////////////////////
