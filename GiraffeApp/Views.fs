@@ -7,8 +7,8 @@ let layout (content: XmlNode list) =
         head [] [
             title []  [ encodedText "GiraffeApp" ]
             link [ _rel  "stylesheet"
-                    _type "text/css"
-                    _href "/main.css" ]
+                   _type "text/css"
+                   _href "/main.css" ]
         ]
         body [] content
     ]
