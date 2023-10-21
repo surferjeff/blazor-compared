@@ -5,6 +5,7 @@ open System.IO
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
+open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
@@ -14,10 +15,11 @@ open Giraffe
 // Web app
 // ---------------------------------
 
-let indexHandler (name : string) =
-    sprintf "Hello %s, from Giraffe!" name
-        |> Views.index
-        |> htmlView
+let indexHandler (name : string): HttpHandler =
+    fun (next: HttpFunc)(ctx: HttpContext) ->
+        let msg = sprintf "Hello %s, from Giraffe!" name
+        let view = Views.index ctx.Request.Path.Value msg
+        htmlView view
 
 let webApp =
     choose [

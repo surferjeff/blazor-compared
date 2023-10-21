@@ -59,7 +59,7 @@ let partial () =
     h1 [] [ encodedText "GiraffeApp" ]
 
 
-let index (message : string) =
+let index (requestPath: string)(message : string) =
     [
         partial()
         p [] [ encodedText message ]
