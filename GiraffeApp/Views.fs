@@ -40,7 +40,7 @@ let mainLayout (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
         main [] [
             div [ _class "top-row px-4" ] [
                 a [ _href "/about"
-                    _hx_boost true
+                    _hx_boost "true"
                     _hx_target "#main-layout" ] [ encodedText "About" ] ]
             article [ _class "content px-4 article"
                       _id "main-article" ] mainArticle ] ] ]
