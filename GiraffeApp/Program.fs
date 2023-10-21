@@ -9,7 +9,6 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
-open Views
 
 // ---------------------------------
 // Web app
@@ -45,8 +44,7 @@ let errorHandler (ex : Exception) (logger : ILogger) =
 let configureCors (builder : CorsPolicyBuilder) =
     builder
         .WithOrigins(
-            "http://localhost:5000",
-            "https://localhost:5001")
+            "http://localhost:5000")
        .AllowAnyMethod()
        .AllowAnyHeader()
        |> ignore
@@ -57,8 +55,7 @@ let configureApp (app : IApplicationBuilder) =
     | true  ->
         app.UseDeveloperExceptionPage()
     | false ->
-        app .UseGiraffeErrorHandler(errorHandler)
-            .UseHttpsRedirection())
+        app .UseGiraffeErrorHandler(errorHandler))
         .UseCors(configureCors)
         .UseStaticFiles()
         .UseGiraffe(webApp)
