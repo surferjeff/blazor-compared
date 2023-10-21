@@ -19,7 +19,8 @@ let indexHandler (name : string): HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
         let msg = sprintf "Hello %s, from Giraffe!" name
         let view = Views.index ctx.Request.Path.Value msg
-        htmlView view
+        let handler = htmlView view
+        handler next ctx
 
 let webApp =
     choose [
