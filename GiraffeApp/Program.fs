@@ -15,8 +15,9 @@ open Giraffe
 // ---------------------------------
 
 let indexHandler (name : string) =
-    let view =  sprintf "Hello %s, from Giraffe!" name |> Views.index
-    htmlView view
+    sprintf "Hello %s, from Giraffe!" name
+        |> Views.index
+        |> htmlView
 
 let webApp =
     choose [
