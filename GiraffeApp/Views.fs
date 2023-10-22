@@ -48,10 +48,10 @@ let mainLayout (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
 // Navigation menu.
 let navItem (requestPath: string) (text: string) (href: string)(oiIcon: string) = 
     let aclass = if href = requestPath then "nav-link active" else "nav-link"
-    [ div [ _class "nav-item px-3" ] [
+    div [ _class "nav-item px-3" ] [
         a [ _class aclass; _href href ]
           [ span [ _class ("oi oi-" + oiIcon); attr "aria-hidden" "true" ] []
-            encodedText text ] ] ]
+            encodedText text ] ]
                  
 
 let navMenu (path: string) = [
@@ -65,10 +65,10 @@ let navMenu (path: string) = [
     input [ _type "checkbox"; _id "toggle-menu"; _class "visually-hidden" ]
 
     div [ _id "nav-menu" ] [
-        nav [ _class "flex-column"; _hx_boost "true"; _hx_target "#main-layout" ]
-            (navItem path "Home" "/" "home"
-             @ navItem path "Counter" "/counter" "plus"
-             @ navItem path "Fetch data" "/fetchdata" "list-rich") ] ]
+        nav [ _class "flex-column"; _hx_boost "true"; _hx_target "#main-layout" ] [
+            navItem path "Home" "/" "home"
+            navItem path "Counter" "/counter" "plus"
+            navItem path "Fetch data" "/fetchdata" "list-rich" ] ] ]
 
 /////////////////////////////////////////////////////////////////////////
 
