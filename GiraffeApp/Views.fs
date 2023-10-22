@@ -6,6 +6,8 @@ open Giraffe.ViewEngine
 let _hx_swap_oob  = attr "hx-swap-oob"
 let _hx_target  = attr "hx-target"
 let _hx_boost  = attr "hx-boost"
+let _hx_get = attr "hx-get"
+let _hx_swap = attr "hx-swap"
 
 // Layouts
 let layout (atitle: string) (content: XmlNode list) = [
@@ -80,6 +82,16 @@ let survey (title: string) =
                 _href "https://go.microsoft.com/fwlink/?linkid=2149017" ]
               [encodedText " brief survey"] ]
         encodedText " and tell us what you think." ]
+
+let counter (count: int) = [
+    form [ _id "increment-form"; _hx_get "/increment";  _hx_swap "outerHTML"] [
+        h1 [] [rawText "Counter" ]
+        p [ attr "role" "status" ] [
+            rawText "Current count: "
+            encodedText (string count) ]
+        input [ _type "hidden"; _name "count"; _value (string (count + 1))]
+        input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
+            _value "Click me"] ] ]
 
 /////////////////////////////////////////////////////////////////////////
 // Top level pages.

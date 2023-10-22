@@ -40,6 +40,7 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
+                route "/counter" >=> pageHandler "Counter" (Views.counter 0)
                 route "/about" >=> pageHandler "About" Views.about
             ]
         setStatusCode 404 >=> text "Not Found" ]
