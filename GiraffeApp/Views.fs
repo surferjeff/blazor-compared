@@ -70,12 +70,10 @@ let navMenu (path: string) = [
              @ navItem path "Fetch data" "/fetchdata") ] ]
 
 /////////////////////////////////////////////////////////////////////////
-let partial () =
-    h1 [] [ encodedText "GiraffeApp" ]
-
 
 let index (requestPath: string)(message : string) =
-    [
-        partial()
-        p [] [ encodedText message ]
-    ] |> layout "Yes!"
+    let menu = navMenu requestPath
+    let main = mainLayout menu [
+        h1 [] [ encodedText "G'day"]
+    ]
+    layout "Home" main
