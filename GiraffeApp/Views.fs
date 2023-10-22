@@ -70,11 +70,23 @@ let navMenu (path: string) = [
             navItem path "Counter" "/counter" "plus"
             navItem path "Fetch data" "/fetchdata" "list-rich" ] ] ]
 
-/////////////////////////////////////////////////////////////////////////
+let survey (title: string) =
+    div [ _class "alert alert-secondary mt-4" ] [
+        span [ _class "oi oi-pencil me-2"; (attr "aria-hidden" "true")] []
+        strong [] [ encodedText title ]
+        span [ _class "text-nowrap" ] [
+            encodedText " Please take our "
+            a [ _target "_blank"; _class "font-weight-bold link-dark"
+                _href "https://go.microsoft.com/fwlink/?linkid=2149017" ]
+              [encodedText " brief survey"] ]
+        encodedText " and tell us what you think." ]
 
+/////////////////////////////////////////////////////////////////////////
+// Top level pages.
 let index  = [
     h1 [] [ encodedText "Hello, world!"]
-    p [] [ encodedText "Welcome to your new app."] ]
+    p [] [ encodedText "Welcome to your new app."]
+    survey "How is Blazor working for you?" ]
 
 let about = [
     p [] [encodedText "I'm built with"]
