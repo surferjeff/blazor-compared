@@ -75,6 +75,7 @@ let navMenu (path: string) = [
 let index (requestPath: string)(message : string) =
     let menu = navMenu requestPath
     let main = mainLayout menu [
-        h1 [] [ encodedText "G'day"]
+        h1 [] [ encodedText "Hello, world!"]
+        p [] [ encodedText "Welcome to your new app."]
     ]
     layout "Home" main
