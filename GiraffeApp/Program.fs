@@ -17,10 +17,9 @@ open Giraffe
 
 let indexHandler (name : string): HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
-        let msg = sprintf "Hello %s, from Giraffe!" name
-        let view = Views.index ctx.Request.Path.Value msg
-        let handler = htmlView view
-        handler next ctx
+        let view = sprintf "Hello %s, from Giraffe!" name
+                |> Views.index ctx.Request.Path.Value
+        htmlView view next ctx
 
 let webApp =
     choose [
