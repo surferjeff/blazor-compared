@@ -72,22 +72,13 @@ let navMenu (path: string) = [
 
 /////////////////////////////////////////////////////////////////////////
 
-let index (requestPath: string)(boosted: bool) =
-    let menu = navMenu requestPath
-    let main = mainLayout menu [
-        h1 [] [ encodedText "Hello, world!"]
-        p [] [ encodedText "Welcome to your new app."]
-    ]
-    let lout = if boosted then boostedLayout else layout
-    lout "Home" main
+let index  = [
+    h1 [] [ encodedText "Hello, world!"]
+    p [] [ encodedText "Welcome to your new app."] ]
 
-let about =
-    let menu = navMenu "/about"
-    let main = mainLayout menu [
-        p [] [encodedText "I'm built with"]
-        a [ _class "big-link"
-            _href "https://giraffe.wiki/"] [ encodedText "F# Giraffe"]
-        a [ _class "big-link"
-            _href "https://htmx.org/"] [encodedText "HTMX"]
-    ]
-    layout "About" main
+let about = [
+    p [] [encodedText "I'm built with"]
+    a [ _class "big-link"
+        _href "https://giraffe.wiki/"] [ encodedText "F# Giraffe"]
+    a [ _class "big-link"
+        _href "https://htmx.org/"] [encodedText "HTMX"] ]

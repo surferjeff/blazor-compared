@@ -23,19 +23,24 @@ let htmlNodes (htmlNodes : XmlNode list) : HttpHandler =
         ctx.SetContentType "text/html; charset=utf-8"
         ctx.WriteBytesAsync bytes
 
-let indexHandler (next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
+let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let boosted = match ctx.Request.Headers.HxBoosted with
                     | Some(b) -> b
                     | None -> false
-    let view =  Views.index ctx.Request.Path.Value boosted
-    htmlNodes view next ctx
+    let menu = Views.navMenu ctx.Request.Path.Value
+    let main = Views.mainLayout menu view
+    let layout = if boosted then Views.boostedLayout else Views.layout
+    let nodes = layout title main
+    htmlNodes nodes next ctx
+    
+
 
 let webApp =
     choose [
         GET >=>
             choose [
-                route "/" >=> indexHandler
-                route "/about" >=> htmlNodes Views.about
+                route "/" >=> pageHandler "Home" Views.index
+                route "/about" >=> pageHandler "About" Views.about
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
