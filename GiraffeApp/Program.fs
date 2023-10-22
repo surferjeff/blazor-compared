@@ -10,15 +10,36 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
+open Giraffe.Htmx
+open Giraffe.ViewEngine
 
 // ---------------------------------
 // Web app
 // ---------------------------------
 
+/// <summary>
+/// <para>Compiles a `Giraffe.GiraffeViewEngine.XmlNode` object to a HTML view and writes the output to the body of the HTTP response.</para>
+/// <para>It also sets the HTTP header `Content-Type` to `text/html` and sets the `Content-Length` header accordingly.</para>
+/// </summary>
+/// <param name="htmlView">An `XmlNode` object to be send back to the client and which represents a valid HTML view.</param>
+/// <returns>A Giraffe `HttpHandler` function which can be composed into a bigger web application.</returns>
+let htmlViews (htmlViews : XmlNode list) : HttpHandler =
+    let bytesList = List.map RenderView.AsBytes.htmlDocument htmlViews
+    fun (_ : HttpFunc) (ctx: HttpContext) ->
+        task {
+            let mutable ctx = ctx
+            ctx.SetContentType "text/html; charset=utf-8"
+            // for bytes in bytesList do
+            (ctx.WriteBytesAsync bytes |> Async.AwaitTask).Value
+            // ctx
+        }
+
 let indexHandler (name : string): HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
-        let view = sprintf "Hello %s, from Giraffe!" name
-                |> Views.index ctx.Request.Path.Value
+        let boosted = match ctx.Request.Headers.HxBoosted with
+                      | Some(b) -> b
+                      | None -> false
+        let view =  Views.index ctx.Request.Path.Value boosted
         htmlView view next ctx
 
 let webApp =
