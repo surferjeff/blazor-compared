@@ -17,6 +17,15 @@ open Giraffe.ViewEngine
 // Web app
 // ---------------------------------
 
+let rec writeBytesAsync (ctx: HttpContext option)(bytesList: byte[] list) =
+    task {
+        match (ctx, bytesList) with
+        | (Some(x), head :: tail) ->
+            let! nextCtx = x.WriteBytesAsync head
+            return! writeBytesAsync nextCtx tail
+        | (finalCtx, _) -> return finalCtx
+    }
+
 /// <summary>
 /// <para>Compiles a `Giraffe.GiraffeViewEngine.XmlNode` object to a HTML view and writes the output to the body of the HTTP response.</para>
 /// <para>It also sets the HTTP header `Content-Type` to `text/html` and sets the `Content-Length` header accordingly.</para>
@@ -24,17 +33,9 @@ open Giraffe.ViewEngine
 /// <param name="htmlView">An `XmlNode` object to be send back to the client and which represents a valid HTML view.</param>
 /// <returns>A Giraffe `HttpHandler` function which can be composed into a bigger web application.</returns>
 let htmlViews (htmlNodes : XmlNode list)(_ : HttpFunc) (ctx: HttpContext) : HttpFuncResult =
-    task {
-        let bytesList = List.map RenderView.AsBytes.htmlDocument htmlNodes
-        ctx.SetContentType "text/html; charset=utf-8"
-        let mutable ctx = Some(ctx)
-        // for bytes in bytesList do
-        for bytes in bytesList do
-            match ctx with
-                | Some(x) -> let! newCtx = x.WriteBytesAsync bytes; ctx <- newCtx
-                | None -> ()
-        return ctx
-    }
+    let bytesList = List.map RenderView.AsBytes.htmlDocument htmlNodes
+    ctx.SetContentType "text/html; charset=utf-8"
+    writeBytesAsync (Some ctx) bytesList
 
 let indexHandler (next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let boosted = match ctx.Request.Headers.HxBoosted with
@@ -48,7 +49,7 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> indexHandler
-                route "/about" >=> htmlView Views.about
+                route "/about" >=> htmlViews Views.about
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

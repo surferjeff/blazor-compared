@@ -5,7 +5,7 @@ open Giraffe.ViewEngine
 // HTMX Attributes
 let _hx_swap_oob  = attr "hx-swap-oob"
 let _hx_target  = attr "hx-target"
-let _hx_boost  = attr "hx-swap-oob"
+let _hx_boost  = attr "hx-boost"
 
 // Layouts
 let layout (atitle: string) (content: XmlNode list) = [
@@ -78,8 +78,8 @@ let index (requestPath: string)(boosted: bool) =
         h1 [] [ encodedText "Hello, world!"]
         p [] [ encodedText "Welcome to your new app."]
     ]
-    // let lout = if boosted then boostedLayout else layout
-    layout "Home" main
+    let lout = if boosted then boostedLayout else layout
+    lout "Home" main
 
 let about =
     let menu = navMenu "/about"
