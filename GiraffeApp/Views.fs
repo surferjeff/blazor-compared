@@ -8,7 +8,7 @@ let _hx_target  = attr "hx-target"
 let _hx_boost  = attr "hx-swap-oob"
 
 // Layouts
-let layout (atitle: string) (content: XmlNode list) =
+let layout (atitle: string) (content: XmlNode list) = [
     html [ _lang "en" ] [
         head [] [
             meta [ _charset "utf-8" ]
@@ -29,7 +29,7 @@ let layout (atitle: string) (content: XmlNode list) =
             div [ _id "main-layout"] content
             script [ _src "/htmx1.9.6.min.js" ] []
         ]
-    ]
+    ] ]
 
 let boostedLayout (atitle: string) (content: XmlNode list) =
     title [ _hx_swap_oob "title" ] [ encodedText atitle ] :: content
