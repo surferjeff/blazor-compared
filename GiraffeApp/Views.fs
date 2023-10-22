@@ -79,3 +79,14 @@ let index (requestPath: string)(message : string) =
         p [] [ encodedText "Welcome to your new app."]
     ]
     layout "Home" main
+
+let about =
+    let menu = navMenu "/about"
+    let main = mainLayout menu [
+        p [] [encodedText "I'm built with"]
+        a [ _class "big-link"
+            _href "https://giraffe.wiki/"] [ encodedText "F# Giraffe"]
+        a [ _class "big-link"
+            _href "https://htmx.org/"] [encodedText "HTMX"]
+    ]
+    layout "About" main

@@ -26,6 +26,7 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> indexHandler "world"
+                route "/about" >=> htmlView Views.about
                 routef "/hello/%s" indexHandler
             ]
         setStatusCode 404 >=> text "Not Found" ]
