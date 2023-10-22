@@ -148,7 +148,15 @@ func mainLayout(navMenu, mainArticle templ.Component) templ.Component {
 	})
 }
 
-func navItem(requestPath string, text string, href string) templ.Component {
+func navLinkClass(requestPath string, href string) string {
+	if href == requestPath {
+		return "nav-link active"
+	} else {
+		return "nav-link"
+	}
+}
+
+func navItem(requestPath string, text string, href string, oiIcon string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -165,54 +173,55 @@ func navItem(requestPath string, text string, href string) templ.Component {
 		if err != nil {
 			return err
 		}
-		if href == requestPath {
-			_, err = templBuffer.WriteString("<a class=\"nav-link active\" href=\"")
-			if err != nil {
-				return err
-			}
-			var var_9 templ.SafeURL = templ.SafeURL(href)
-			_, err = templBuffer.WriteString(templ.EscapeString(string(var_9)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"><span class=\"oi oi-home\" aria-hidden=\"true\"></span>")
-			if err != nil {
-				return err
-			}
-			var var_10 string = text
-			_, err = templBuffer.WriteString(templ.EscapeString(var_10))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</a>")
-			if err != nil {
-				return err
-			}
-		} else {
-			_, err = templBuffer.WriteString("<a class=\"nav-link\" href=\"")
-			if err != nil {
-				return err
-			}
-			var var_11 templ.SafeURL = templ.SafeURL(href)
-			_, err = templBuffer.WriteString(templ.EscapeString(string(var_11)))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("\"><span class=\"oi oi-home\" aria-hidden=\"true\"></span>")
-			if err != nil {
-				return err
-			}
-			var var_12 string = text
-			_, err = templBuffer.WriteString(templ.EscapeString(var_12))
-			if err != nil {
-				return err
-			}
-			_, err = templBuffer.WriteString("</a>")
-			if err != nil {
-				return err
-			}
+		var var_9 = []any{navLinkClass(requestPath, href)}
+		err = templ.RenderCSSItems(ctx, templBuffer, var_9...)
+		if err != nil {
+			return err
 		}
-		_, err = templBuffer.WriteString("</div>")
+		_, err = templBuffer.WriteString("<a class=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_9).String()))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\" href=\"")
+		if err != nil {
+			return err
+		}
+		var var_10 templ.SafeURL = templ.SafeURL(href)
+		_, err = templBuffer.WriteString(templ.EscapeString(string(var_10)))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\">")
+		if err != nil {
+			return err
+		}
+		var var_11 = []any{"oi oi-" + oiIcon}
+		err = templ.RenderCSSItems(ctx, templBuffer, var_11...)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("<span class=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(templ.CSSClasses(var_11).String()))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\" aria-hidden=\"true\"></span>")
+		if err != nil {
+			return err
+		}
+		var var_12 string = text
+		_, err = templBuffer.WriteString(templ.EscapeString(var_12))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a></div>")
 		if err != nil {
 			return err
 		}
@@ -249,15 +258,15 @@ func navMenu(path string) templ.Component {
 		if err != nil {
 			return err
 		}
-		err = navItem(path, "Home", "/").Render(ctx, templBuffer)
+		err = navItem(path, "Home", "/", "home").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		err = navItem(path, "Counter", "/counter").Render(ctx, templBuffer)
+		err = navItem(path, "Counter", "/counter", "plus").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
-		err = navItem(path, "Fetch data", "/fetchdata").Render(ctx, templBuffer)
+		err = navItem(path, "Fetch data", "/fetchdata", "list-rich").Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
