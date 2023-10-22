@@ -23,32 +23,30 @@ open Giraffe.ViewEngine
 /// </summary>
 /// <param name="htmlView">An `XmlNode` object to be send back to the client and which represents a valid HTML view.</param>
 /// <returns>A Giraffe `HttpHandler` function which can be composed into a bigger web application.</returns>
-let htmlViews (htmlViews : XmlNode list) : HttpHandler =
-    let bytesList = List.map RenderView.AsBytes.htmlDocument htmlViews
-    fun (_ : HttpFunc) (ctx: HttpContext) ->
-        task {
-            let mutable ctx = ctx
-            ctx.SetContentType "text/html; charset=utf-8"
-            // for bytes in bytesList do
-            (ctx.WriteBytesAsync bytes |> Async.AwaitTask).Value
-            // ctx
-        }
+// let htmlViews (htmlViews : XmlNode list) : HttpHandler =
+//     let bytesList = List.map RenderView.AsBytes.htmlDocument htmlViews
+//     fun (_ : HttpFunc) (ctx: HttpContext) ->
+//         task {
+//             let mutable ctx = ctx
+//             ctx.SetContentType "text/html; charset=utf-8"
+//             // for bytes in bytesList do
+//             (ctx.WriteBytesAsync bytes |> Async.AwaitTask).Value
+//             // ctx
+//         }
 
-let indexHandler (name : string): HttpHandler =
-    fun (next: HttpFunc)(ctx: HttpContext) ->
-        let boosted = match ctx.Request.Headers.HxBoosted with
-                      | Some(b) -> b
-                      | None -> false
-        let view =  Views.index ctx.Request.Path.Value boosted
-        htmlView view next ctx
+let indexHandler (next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
+    let boosted = match ctx.Request.Headers.HxBoosted with
+                    | Some(b) -> b
+                    | None -> false
+    let view =  Views.index ctx.Request.Path.Value boosted
+    htmlView view next ctx
 
 let webApp =
     choose [
         GET >=>
             choose [
-                route "/" >=> indexHandler "world"
+                route "/" >=> indexHandler
                 route "/about" >=> htmlView Views.about
-                routef "/hello/%s" indexHandler
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
