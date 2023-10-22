@@ -53,6 +53,21 @@ let navItem (requestPath: string) (text: string) (href: string) =
           [ span [ _class "oi oi-home"; attr "aria-hidden" "true" ]
                  [ encodedText text ] ] ] ]
 
+let navMenu (path: string) = [
+    div [ _class "navbar-top-row ps-3 navbar navbar-dark" ] [
+        div [ _class "container-fluid" ] [
+            a [ _class "navbar-brand"; _href ""] [ encodedText "BlazorApp" ]
+            label [ _for "toggle-menu" ] [
+                div [ _title "Navigation menu"; _class "navbar-toggler" ] [
+                    span [ _class "navbar-toggler-icon" ] [] ] ] ] ]
+
+    input [ _type "checkbox"; _id "toggle-menu"; _class "visually-hidden" ]
+
+    div [ _id "nav-menu" ] [
+        nav [ _class "flex-column"; _hx_boost "true"; _hx_target "#main-layout" ]
+            (navItem path "Home" "/"
+             @ navItem path "Counter" "/counter"
+             @ navItem path "Fetch data" "/fetchdata") ] ]
 
 /////////////////////////////////////////////////////////////////////////
 let partial () =
