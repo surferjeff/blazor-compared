@@ -12,6 +12,7 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Giraffe.Htmx
 open Giraffe.ViewEngine
+open System.Globalization
 
 // ---------------------------------
 // Web app
@@ -33,7 +34,14 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
     let nodes = layout title main
     htmlNodes nodes next ctx
     
+[<CLIMutable>]
+type CountPayload = { Count: int }
 
+let incrementHandler: HttpHandler =
+    let culture = CultureInfo.CreateSpecificCulture("en-US")
+    bindForm<CountPayload> (Some culture) (fun payload -> 
+        Views.counter payload.Count
+    )
 
 let webApp =
     choose [
@@ -43,6 +51,7 @@ let webApp =
                 route "/counter" >=> pageHandler "Counter" (Views.counter 0)
                 route "/about" >=> pageHandler "About" Views.about
             ]
+        POST >=> route "/increment" >=> incrementHandler
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------

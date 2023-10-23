@@ -89,7 +89,7 @@ let counter (count: int) = [
         p [ attr "role" "status" ] [
             rawText "Current count: "
             encodedText (string count) ]
-        input [ _type "hidden"; _name "count"; _value (string (count + 1))]
+        input [ _type "hidden"; _name "Count"; _value (string (count + 1))]
         input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
             _value "Click me"] ] ]
 
