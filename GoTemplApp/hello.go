@@ -32,11 +32,13 @@ func RenderPage(c *fiber.Ctx, title string,
 	c.Vary("HX-Boosted")
 	main := mainLayout(navMenu(c.Route().Path), component)
 	headers := c.GetReqHeaders()
-	layout := layout(title, main)
+	var whichLayout templ.Component
 	if headers["Hx-Boosted"] == "true" {
-		layout = boostedLayout(title, main)
+		whichLayout = boostedLayout(title, main)
+	} else {
+		whichLayout = layout(title, main)
 	}
-	return RenderC(c, layout)
+	return RenderC(c, whichLayout)
 }
 
 func main() {
