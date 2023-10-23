@@ -25,9 +25,7 @@ let htmlNodes (htmlNodes : XmlNode list) : HttpHandler =
         ctx.WriteBytesAsync bytes
 
 let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    let boosted = match ctx.Request.Headers.HxBoosted with
-                    | Some(b) -> b
-                    | None -> false
+    let boosted = Option.defaultValue false ctx.Request.Headers.HxBoosted
     let menu = Views.navMenu ctx.Request.Path.Value
     let main = Views.mainLayout menu view
     let layout = if boosted then Views.boostedLayout else Views.layout
