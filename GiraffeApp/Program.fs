@@ -32,6 +32,7 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
     let main = Views.mainLayout menu view
     let layout = if boosted then Views.boostedLayout else Views.layout
     let nodes = layout title main
+    ctx.SetHttpHeader ("Vary", "HX-Boosted")
     htmlNodes nodes next ctx
     
 [<CLIMutable>]
@@ -39,8 +40,8 @@ type CountPayload = { Count: int }
 
 let incrementHandler: HttpHandler =
     let culture = CultureInfo.CreateSpecificCulture("en-US")
-    bindForm<CountPayload> (Some culture) (fun payload -> 
-        Views.counter payload.Count
+    bindQuery<CountPayload> (Some culture) (fun payload -> 
+        htmlNodes (Views.counter payload.Count)
     )
 
 let webApp =
@@ -50,8 +51,8 @@ let webApp =
                 route "/" >=> pageHandler "Home" Views.index
                 route "/counter" >=> pageHandler "Counter" (Views.counter 0)
                 route "/about" >=> pageHandler "About" Views.about
+                route "/increment" >=> incrementHandler
             ]
-        POST >=> route "/increment" >=> incrementHandler
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------
