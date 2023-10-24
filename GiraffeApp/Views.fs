@@ -8,6 +8,7 @@ let _hx_target  = attr "hx-target"
 let _hx_boost  = attr "hx-boost"
 let _hx_get = attr "hx-get"
 let _hx_swap = attr "hx-swap"
+let _hx_trigger = attr "hx-trigger"
 
 // Layouts
 let layout (atitle: string) (content: XmlNode list) = [
@@ -82,6 +83,30 @@ let survey (title: string) =
                 _href "https://go.microsoft.com/fwlink/?linkid=2149017" ]
               [encodedText " brief survey"] ]
         encodedText " and tell us what you think." ]
+
+type Forecast = {
+    Date: System.DateTime
+    TemperatureC: int
+    TemperatureF: int
+    Summary: string
+}
+
+let forecasts (forecasts: Forecast list) =
+    table [ _class "table"; _hx_trigger "every 2s"; _hx_get "/forecasts";
+            _hx_swap "outerHTML" ] [
+        thead [] [
+        tr [] [
+            th [] [rawText "Date"]
+            th [] [rawText "Temp. (C)"]
+            th [] [rawText "Temp. (F)"]
+            th [] [rawText "Summary"] ] ]
+        tbody [] (List.map (fun forecast -> 
+            tr [] [
+                td [] [encodedText (forecast.Date.ToShortDateString())]
+                td [] [encodedText (string forecast.TemperatureC)]
+                td [] [encodedText (string forecast.TemperatureF)]
+                td [] [encodedText forecast.Summary] ] ) forecasts ) ]
+
 
 /////////////////////////////////////////////////////////////////////////
 // Top level pages.
