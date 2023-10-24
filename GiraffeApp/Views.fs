@@ -83,16 +83,6 @@ let survey (title: string) =
               [encodedText " brief survey"] ]
         encodedText " and tell us what you think." ]
 
-let counter (count: int) = [
-    form [ _id "increment-form"; _hx_get "/increment";  _hx_swap "outerHTML"] [
-        h1 [] [rawText "Counter" ]
-        p [ attr "role" "status" ] [
-            rawText "Current count: "
-            encodedText (string count) ]
-        input [ _type "hidden"; _name "Count"; _value (string (count + 1))]
-        input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
-            _value "Click me"] ] ]
-
 /////////////////////////////////////////////////////////////////////////
 // Top level pages.
 let index  = [
@@ -106,3 +96,13 @@ let about = [
         _href "https://giraffe.wiki/"] [ encodedText "F# Giraffe"]
     a [ _class "big-link"
         _href "https://htmx.org/"] [encodedText "HTMX"] ]
+
+let counter (count: int) = [
+    form [ _id "increment-form"; _hx_get "/increment";  _hx_swap "outerHTML"] [
+        h1 [] [rawText "Counter" ]
+        p [ attr "role" "status" ] [
+            rawText "Current count: "
+            encodedText (string count) ]
+        input [ _type "hidden"; _name "Count"; _value (string (count + 1))]
+        input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
+            _value "Click me"] ] ]
