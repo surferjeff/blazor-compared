@@ -53,8 +53,8 @@ let webApp =
                 route "/increment" >=> incrementHandler
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
-                route "/forecasts" >=> warbler (fun _ -> htmlNodes (
-                    Views.forecasts (makeRandomForecasts 5 DateTime.Now)))
+                route "/forecasts" >=> warbler (fun _ ->
+                    makeRandomForecasts 5 |> Views.forecasts |> htmlNodes)
             ]
         setStatusCode 404 >=> text "Not Found" ]
 

@@ -12,7 +12,8 @@ let summaries =
     [| "Freezing"; "Bracing"; "Chilly"; "Cool"; "Mild"; "Warm"; "Balmy"
        "Hot"; "Sweltering"; "Scorching" |]
 
-let makeRandomForecasts (count: int)(now: DateTime) =
+let makeRandomForecasts (count: int) =
+    let now = DateTime.Now
     List.map
         (fun day ->
             let tempC = Random.Shared.Next(-20, 55)
