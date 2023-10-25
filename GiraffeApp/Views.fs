@@ -78,14 +78,7 @@ let survey (title: string) =
               [encodedText " brief survey"] ]
         encodedText " and tell us what you think." ]
 
-type Forecast = {
-    Date: System.DateTime
-    TemperatureC: int
-    TemperatureF: int
-    Summary: string
-}
-
-let forecasts (forecasts: Forecast list) =
+let forecasts (forecasts: Weather.Forecast list) =
     table [ _class "table"; _hx_trigger "every 2s"; _hx_get "/forecasts";
             _hx_swap "outerHTML" ] [
         thead [] [
@@ -94,7 +87,7 @@ let forecasts (forecasts: Forecast list) =
             th [] [rawText "Temp. (C)"]
             th [] [rawText "Temp. (F)"]
             th [] [rawText "Summary"] ] ]
-        tbody [] (List.map (fun forecast -> 
+        tbody [] (List.map (fun (forecast: Weather.Forecast) -> 
             tr [] [
                 td [] [encodedText (forecast.Date.ToShortDateString())]
                 td [] [encodedText (string forecast.TemperatureC)]
