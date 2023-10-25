@@ -3,12 +3,12 @@ module Views
 open Giraffe.ViewEngine
 
 // HTMX Attributes
-let _hx_swap_oob  = attr "hx-swap-oob"
-let _hx_target  = attr "hx-target"
-let _hx_boost  = attr "hx-boost"
-let _hx_get = attr "hx-get"
-let _hx_swap = attr "hx-swap"
-let _hx_trigger = attr "hx-trigger"
+let _hxSwapOob  = attr "hx-swap-oob"
+let _hxTarget  = attr "hx-target"
+let _hxBoost  = attr "hx-boost"
+let _hxGet = attr "hx-get"
+let _hxSwap = attr "hx-swap"
+let _hxTrigger = attr "hx-trigger"
 
 // Layouts
 let layout (atitle: string) (content: XmlNode list) = [
@@ -29,7 +29,7 @@ let layout (atitle: string) (content: XmlNode list) = [
             script [ _src "/htmx1.9.6.min.js" ] [] ] ] ]
 
 let boostedLayout (atitle: string) (content: XmlNode list) =
-    title [ _hx_swap_oob "title" ] [ encodedText atitle ] :: content
+    title [ _hxSwapOob "title" ] [ encodedText atitle ] :: content
 
 let mainLayout (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
     div [ _class "page" ] [
@@ -37,8 +37,8 @@ let mainLayout (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
         main [] [
             div [ _class "top-row px-4" ] [
                 a [ _href "/about"
-                    _hx_boost "true"
-                    _hx_target "#main-layout" ] [ encodedText "About" ] ]
+                    _hxBoost "true"
+                    _hxTarget "#main-layout" ] [ encodedText "About" ] ]
             article [ _class "content px-4 article"
                       _id "main-article" ] mainArticle ] ] ]
 
@@ -62,7 +62,7 @@ let navMenu (path: string) = [
     input [ _type "checkbox"; _id "toggle-menu"; _class "visually-hidden" ]
 
     div [ _id "nav-menu" ] [
-        nav [ _class "flex-column"; _hx_boost "true"; _hx_target "#main-layout" ] [
+        nav [ _class "flex-column"; _hxBoost "true"; _hxTarget "#main-layout" ] [
             navItem path "Home" "/" "home"
             navItem path "Counter" "/counter" "plus"
             navItem path "Fetch data" "/fetchdata" "list-rich" ] ] ]
@@ -78,9 +78,9 @@ let survey (title: string) =
               [encodedText " brief survey"] ]
         encodedText " and tell us what you think." ]
 
-let forecasts (forecasts: Weather.Forecast list) =
-    table [ _class "table"; _hx_trigger "every 2s"; _hx_get "/forecasts";
-            _hx_swap "outerHTML" ] [
+let forecasts (forecasts: Weather.Forecast list) = [
+    table [ _class "table"; _hxTrigger "every 2s"; _hxGet "/forecasts";
+            _hxSwap "outerHTML" ] [
         thead [] [
         tr [] [
             th [] [rawText "Date"]
@@ -92,7 +92,7 @@ let forecasts (forecasts: Weather.Forecast list) =
                 td [] [encodedText (forecast.Date.ToShortDateString())]
                 td [] [encodedText (string forecast.TemperatureC)]
                 td [] [encodedText (string forecast.TemperatureF)]
-                td [] [encodedText forecast.Summary] ] ) forecasts ) ]
+                td [] [encodedText forecast.Summary] ] ) forecasts ) ] ]
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ let about = [
         _href "https://htmx.org/"] [encodedText "HTMX"] ]
 
 let counter (count: int) = [
-    form [ _id "increment-form"; _hx_get "/increment";  _hx_swap "outerHTML"] [
+    form [ _id "increment-form"; _hxGet "/increment";  _hxSwap "outerHTML"] [
         h1 [] [rawText "Counter" ]
         p [ attr "role" "status" ] [
             rawText "Current count: "
@@ -118,3 +118,9 @@ let counter (count: int) = [
         input [ _type "hidden"; _name "Count"; _value (string (count + 1))]
         input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
             _value "Click me"] ] ]
+
+let fetchData = [
+    h1 [] [rawText "Weather forecast"]
+    p [] [rawText "This component demonstrates fetching data from a service."]
+    p [ _hxTrigger "every 2s"; _hxGet "/forecasts"; _hxSwap "outerHTML"] [
+        em [] [rawText "Loading..."] ] ]

@@ -13,6 +13,7 @@ open Giraffe
 open Giraffe.Htmx
 open Giraffe.ViewEngine
 open System.Globalization
+open Weather
 
 // ---------------------------------
 // Web app
@@ -50,6 +51,9 @@ let webApp =
                 route "/counter" >=> pageHandler "Counter" (Views.counter 0)
                 route "/about" >=> pageHandler "About" Views.about
                 route "/increment" >=> incrementHandler
+                route "/fetchdata" >=> pageHandler "Weather forecast"
+                    Views.fetchData
+                route "/forecasts" >=> htmlNodes (Views.forecasts (makeRandomForecasts 5))
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
