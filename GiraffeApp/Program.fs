@@ -53,7 +53,8 @@ let webApp =
                 route "/increment" >=> incrementHandler
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
-                route "/forecasts" >=> htmlNodes (Views.forecasts (makeRandomForecasts 5))
+                route "/forecasts" >=> noResponseCaching >=> htmlNodes (
+                    Views.forecasts (makeRandomForecasts 5))
             ]
         setStatusCode 404 >=> text "Not Found" ]
 
