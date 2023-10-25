@@ -14,10 +14,9 @@ let summaries =
 
 let makeRandomForecasts (count: int) =
     let now = DateTime.Now
-    let tempC = Random.Shared.Next(-20, 55)
-
     List.map
         (fun day ->
+            let tempC = Random.Shared.Next(-20, 55)
             { Date = now.AddDays(day)
               TemperatureC = tempC
               TemperatureF = tempC * 9 / 5 + 32
