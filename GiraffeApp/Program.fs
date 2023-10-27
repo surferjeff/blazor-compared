@@ -22,12 +22,9 @@ open Weather
 
 let htmlNodes (htmlNodes : XmlNode list) : HttpHandler =
     let bytes = RenderView.AsBytes.htmlNodes htmlNodes
-    handleContext(
-        fun ctx -> 
-            ctx.SetContentType "text/html; charset=utf-8"
-            ctx.WriteBytesAsync bytes
-    )
-        
+    fun (_ : HttpFunc) (ctx : HttpContext) ->
+        ctx.SetContentType "text/html; charset=utf-8"
+        ctx.WriteBytesAsync bytes
 
 let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let boosted = Option.defaultValue false ctx.Request.Headers.HxBoosted
