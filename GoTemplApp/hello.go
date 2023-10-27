@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/valyala/bytebufferpool"
 )
 
@@ -48,8 +49,9 @@ type IncrementForm struct {
 
 func main() {
 	app := fiber.New(fiber.Config{})
+	session := session.New()
 	app.Use(logger.New())
-	app.Use(csrf.New())
+	app.Use(csrf.New(csrf.Config{Session: session.Storage}))
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
