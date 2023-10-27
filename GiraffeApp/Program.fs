@@ -46,12 +46,17 @@ let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     bindForm<IncrementForm> None (fun payload -> 
         htmlNodes (Views.counter payload.Count (getTokens ctx))) next ctx
 
+let counterHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
+    let tokens = getTokens ctx
+    let nodes = Views.counter 0 tokens
+    pageHandler "Counter" nodes next ctx
+
 let webApp =
     choose [
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> pageHandler "Counter" (Views.counter 0)
+                route "/counter" >=> counterHandler
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
