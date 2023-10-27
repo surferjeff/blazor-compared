@@ -39,7 +39,7 @@ type CountPayload = { Count: int }
 
 let incrementHandler: HttpHandler =
     let culture = CultureInfo.CreateSpecificCulture("en-US")
-    bindQuery<CountPayload> (Some culture) (fun payload -> 
+    bindForm<CountPayload> (Some culture) (fun payload -> 
         htmlNodes (Views.counter payload.Count)
     )
 
@@ -50,12 +50,12 @@ let webApp =
                 route "/" >=> pageHandler "Home" Views.index
                 route "/counter" >=> pageHandler "Counter" (Views.counter 0)
                 route "/about" >=> pageHandler "About" Views.about
-                route "/increment" >=> incrementHandler
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
                 route "/forecasts" >=> warbler (fun _ ->
                     makeRandomForecasts 5 |> Views.forecasts |> htmlNodes)
             ]
+        POST >=> route "/increment" >=> incrementHandler
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------
@@ -91,8 +91,8 @@ let configureApp (app : IApplicationBuilder) =
 
 let configureServices (services : IServiceCollection) =
     services.AddCors()    |> ignore
+    services.AddMvc() |> ignore
     services.AddGiraffe() |> ignore
-    services.AddAntiforgery() |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
     builder.AddConsole()

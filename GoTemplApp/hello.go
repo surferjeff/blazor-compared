@@ -7,6 +7,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/valyala/bytebufferpool"
 )
@@ -41,9 +42,14 @@ func RenderPage(c *fiber.Ctx, title string,
 	return RenderC(c, whichLayout)
 }
 
+type IncrementForm struct {
+	Count int
+}
+
 func main() {
 	app := fiber.New(fiber.Config{})
 	app.Use(logger.New())
+	app.Use(csrf.New())
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -55,9 +61,10 @@ func main() {
 	app.Get("/counter", func(c *fiber.Ctx) error {
 		return RenderPage(c, "Counter", counter(0))
 	})
-	app.Get("/increment", func(c *fiber.Ctx) error {
-		count := c.QueryInt("count", 0)
-		return RenderC(c, counter(count))
+	app.Post("/increment", func(c *fiber.Ctx) error {
+		form := IncrementForm{}
+		c.BodyParser(&form)
+		return RenderC(c, counter(form.Count))
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
 		return RenderPage(c, "Weather forecast", fetchData())

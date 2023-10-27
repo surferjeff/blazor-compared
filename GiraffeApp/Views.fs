@@ -7,6 +7,7 @@ let _hxSwapOob  = attr "hx-swap-oob"
 let _hxTarget  = attr "hx-target"
 let _hxBoost  = attr "hx-boost"
 let _hxGet = attr "hx-get"
+let _hxPost = attr "hx-post"
 let _hxSwap = attr "hx-swap"
 let _hxTrigger = attr "hx-trigger"
 
@@ -110,7 +111,8 @@ let about = [
         _href "https://htmx.org/"] [encodedText "HTMX"] ]
 
 let counter (count: int) = [
-    form [ _id "increment-form"; _hxGet "/increment";  _hxSwap "outerHTML"] [
+    form [ _id "increment-form"; _method "post"; _hxPost "/increment";
+           _hxSwap "outerHTML"] [
         h1 [] [rawText "Counter" ]
         p [ attr "role" "status" ] [
             rawText "Current count: "
