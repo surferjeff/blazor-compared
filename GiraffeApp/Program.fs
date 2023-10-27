@@ -13,7 +13,7 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Giraffe.Htmx
 open Giraffe.ViewEngine
-open Giraffe.Antiforgery
+open System.Globalization
 open Weather
 
 // ---------------------------------
@@ -55,7 +55,7 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> csrfHtmlView Views.counter |> pageHandler "Counter"
+                route "/counter" >=> counterHandler
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
