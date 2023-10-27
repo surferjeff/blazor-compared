@@ -40,3 +40,14 @@ I was never able to get automatic rebuilding (watching) to work with gow.
 
 Fiber transformed the request header "HX-Boosted" into "Hx-Boosted".
 That was very difficult to track down, and I don't see what sense it makes.
+
+# show stoppers
+
+While trying to add protection against CSRF attacks (see the csrf branch),
+I learned there were two critical flaws in Fiber's anti-CSRF:
+https://www.cve.org/CVERecord?id=CVE-2023-45128
+https://www.cve.org/CVERecord?id=CVE-2023-45141
+
+Unbelievable.  CSRF isn't new.  It's very well defined with well-defined
+solutions and the Fiber developers just failed.  I don't think I can trust
+them.  What other vulnerabilities are lurking?
