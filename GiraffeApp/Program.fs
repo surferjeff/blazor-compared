@@ -42,12 +42,12 @@ let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let af = ctx.GetService<IAntiforgery>()
     (match af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously with
     | true  -> bindForm<IncrementForm> None (fun payload -> 
-        htmlNodes (Views.counter payload.Count (af.GetTokens ctx))) next ctx
+        htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
     | false -> RequestErrors.FORBIDDEN "forbidden" next ctx)
 
 let counterHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let af = ctx.GetService<IAntiforgery>()
-    let nodes = af.GetTokens ctx |> Views.counter 0
+    let nodes = af.GetAndStoreTokens ctx |> Views.counter 0
     pageHandler "Counter" nodes next ctx
 
 let webApp =
