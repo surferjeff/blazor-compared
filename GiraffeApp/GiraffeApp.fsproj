@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Antiforgery.fs" />
+    <Compile Include="AntiforgeryViews.fs" />
     <Compile Include="Weather.fs" />
     <Compile Include="Views.fs" />
     <Compile Include="Program.fs" />
