@@ -6,6 +6,7 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
+open Microsoft.AspNetCore.Antiforgery
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
@@ -18,6 +19,10 @@ open Weather
 // ---------------------------------
 // Web app
 // ---------------------------------
+
+let getTokens (ctx: HttpContext) =
+    let af = ctx.GetService<IAntiforgery>()
+    af.GetTokens ctx
 
 let htmlNodes (htmlNodes : XmlNode list) : HttpHandler =
     let bytes = RenderView.AsBytes.htmlNodes htmlNodes
@@ -35,13 +40,11 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
     htmlNodes nodes next ctx
     
 [<CLIMutable>]
-type CountPayload = { Count: int }
+type IncrementForm = { Count: int }
 
-let incrementHandler: HttpHandler =
-    let culture = CultureInfo.CreateSpecificCulture("en-US")
-    bindForm<CountPayload> (Some culture) (fun payload -> 
-        htmlNodes (Views.counter payload.Count)
-    )
+let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
+    bindForm<IncrementForm> None (fun payload -> 
+        htmlNodes (Views.counter payload.Count (getTokens ctx))) next ctx
 
 let webApp =
     choose [
@@ -91,7 +94,7 @@ let configureApp (app : IApplicationBuilder) =
 
 let configureServices (services : IServiceCollection) =
     services.AddCors()    |> ignore
-    services.AddMvc() |> ignore
+    services.AddAntiforgery() |> ignore
     services.AddGiraffe() |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
