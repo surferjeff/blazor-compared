@@ -39,7 +39,8 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
 type IncrementForm = { Count: int }
 
 let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    let af = ctx.GetService<IAntiforgery>()
+    bindForm<IncrementForm> None (fun payload -> 
+        htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
     (match af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously with
     | true  -> bindForm<IncrementForm> None (fun payload -> 
         htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
@@ -55,7 +56,7 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> counterHandler
+                route "/counter" >=> csrfHtmlView Views.counter 0
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
