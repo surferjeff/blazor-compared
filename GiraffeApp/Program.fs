@@ -15,6 +15,7 @@ open Giraffe.Htmx
 open Giraffe.ViewEngine
 open System.Globalization
 open Weather
+open Antiforgery
 
 // ---------------------------------
 // Web app
@@ -45,11 +46,6 @@ let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     | true  -> bindForm<IncrementForm> None (fun payload -> 
         htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
     | false -> RequestErrors.FORBIDDEN "forbidden" next ctx)
-
-let counterHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    let af = ctx.GetService<IAntiforgery>()
-    let nodes = af.GetAndStoreTokens ctx |> Views.counter 0
-    pageHandler "Counter" nodes next ctx
 
 let webApp =
     choose [
