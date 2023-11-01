@@ -36,30 +36,53 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
     ctx.SetHttpHeader ("Vary", "HX-Boosted")
     htmlNodes nodes next ctx
     
+let csrfHtmlNodesHandler (htmlNodes : AntiforgeryTokenSet -> XmlNode list) : HttpHandler =
+    let handler token : HttpHandler =
+        fun (_ : HttpFunc) (ctx : HttpContext) ->
+            let bytes = RenderView.AsBytes.htmlNodes (htmlNodes token)
+            ctx.SetContentType "text/html; charset=utf-8"
+            ctx.WriteBytesAsync bytes 
+
+    csrfTokenizer handler        
+        
+let csrfPageHandler (title: string) (view: AntiforgeryTokenSet -> XmlNode list) : HttpHandler =
+    let handler token : HttpHandler =
+        fun (next: HttpFunc) (ctx : HttpContext) ->
+            let boosted = Option.defaultValue false ctx.Request.Headers.HxBoosted
+            let menu = Views.navMenu ctx.Request.Path.Value
+            let main = Views.mainLayout menu (view token)
+            let layout = if boosted then Views.boostedLayout else Views.layout
+            let nodes = layout title main
+            let bytes = RenderView.AsBytes.htmlNodes nodes
+            ctx.SetHttpHeader ("Vary", "HX-Boosted")
+            ctx.SetContentType "text/html; charset=utf-8"
+            ctx.WriteBytesAsync bytes |> ignore
+                 
+            next ctx     
+     
+    csrfTokenizer handler 
+      
 [<CLIMutable>]
 type IncrementForm = { Count: int }
 
-let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    bindForm<IncrementForm> None (fun payload -> 
-        htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
-    (match af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously with
-    | true  -> bindForm<IncrementForm> None (fun payload -> 
-        htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
-    | false -> RequestErrors.FORBIDDEN "forbidden" next ctx)
+let showCounter payload =  csrfHtmlNodesHandler (Views.counter payload.Count)
+    
+let incrementHandler (next: HttpFunc) (ctx: HttpContext): HttpFuncResult =
+    bindForm<IncrementForm> None showCounter next ctx
 
 let webApp =
     choose [
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> csrfHtmlView Views.counter 0
+                route "/counter" >=> csrfPageHandler "Counter" (Views.counter 0)
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
                 route "/forecasts" >=> warbler (fun _ ->
                     makeRandomForecasts 5 |> Views.forecasts |> htmlNodes)
             ]
-        POST >=> route "/increment" >=> incrementHandler
+        POST >=> route "/increment" >=> requiresCsrfToken (text "forbidden") >=> incrementHandler
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------
