@@ -340,7 +340,7 @@ func counter(count int) templ.Component {
 			var_18 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<form id=\"increment-form\" hx-get=\"/increment\" hx-swap=\"outerHTML\"><h1>")
+		_, err = templBuffer.WriteString("<form id=\"increment-form\" hx-post=\"/increment\" hx-swap=\"outerHTML\"><h1>")
 		if err != nil {
 			return err
 		}
@@ -363,7 +363,7 @@ func counter(count int) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</p><input type=\"hidden\" name=\"count\" value=\"")
+		_, err = templBuffer.WriteString("</p><input type=\"hidden\" name=\"Count\" value=\"")
 		if err != nil {
 			return err
 		}

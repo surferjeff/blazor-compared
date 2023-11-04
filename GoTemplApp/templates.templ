@@ -94,10 +94,10 @@ templ index() {
 }
 
 templ counter(count int) {
-    <form id="increment-form" hx-get="/increment" hx-swap="outerHTML">
+    <form id="increment-form" hx-post="/increment" hx-swap="outerHTML">
         <h1>Counter</h1>
         <p role="status">Current count: { strconv.Itoa(count) }</p>
-        <input type="hidden" name="count" value={ strconv.Itoa(count + 1)} />
+        <input type="hidden" name="Count" value={ strconv.Itoa(count + 1)} />
         <input type="submit" class="btn btn-primary" id="ClickMeButton" value="Click me" />
     </form>
 }

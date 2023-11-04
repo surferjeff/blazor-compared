@@ -6,6 +6,7 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
+open Microsoft.AspNetCore.Antiforgery
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
@@ -35,27 +36,39 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
     htmlNodes nodes next ctx
     
 [<CLIMutable>]
-type CountPayload = { Count: int }
+type IncrementForm = { Count: int }
+
+let getAndStoreAntiforgeryTokens (f: AntiforgeryTokenSet -> HttpHandler): HttpHandler =
+    fun (next: HttpFunc)(ctx: HttpContext) ->
+        let af = ctx.GetService<IAntiforgery>()
+        f (af.GetAndStoreTokens ctx) next ctx
 
 let incrementHandler: HttpHandler =
-    let culture = CultureInfo.CreateSpecificCulture("en-US")
-    bindQuery<CountPayload> (Some culture) (fun payload -> 
-        htmlNodes (Views.counter payload.Count)
-    )
+    getAndStoreAntiforgeryTokens (fun tokens ->
+        bindForm<IncrementForm> None (fun payload -> 
+                htmlNodes (Views.counter payload.Count tokens)))
+
+let requireAntiforgeryToken: HttpHandler =
+    authorizeRequest (fun ctx -> 
+        let af = ctx.GetService<IAntiforgery>()
+        af.IsRequestValidAsync(ctx) |> Async.AwaitTask
+            |> Async.RunSynchronously)
+        (RequestErrors.forbidden (text "Forbidden"))
 
 let webApp =
     choose [
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> pageHandler "Counter" (Views.counter 0)
+                route "/counter" >=> getAndStoreAntiforgeryTokens (
+                    fun tokens -> pageHandler "Counter" (Views.counter 0 tokens))
                 route "/about" >=> pageHandler "About" Views.about
-                route "/increment" >=> incrementHandler
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
                 route "/forecasts" >=> warbler (fun _ ->
                     makeRandomForecasts 5 |> Views.forecasts |> htmlNodes)
             ]
+        POST >=> route "/increment" >=> requireAntiforgeryToken >=> incrementHandler
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------
@@ -91,8 +104,8 @@ let configureApp (app : IApplicationBuilder) =
 
 let configureServices (services : IServiceCollection) =
     services.AddCors()    |> ignore
-    services.AddGiraffe() |> ignore
     services.AddAntiforgery() |> ignore
+    services.AddGiraffe() |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
     builder.AddConsole()

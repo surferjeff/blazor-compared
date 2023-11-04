@@ -1,12 +1,15 @@
 module Views
 
 open Giraffe.ViewEngine
+open Microsoft.AspNetCore.Antiforgery
+open Giraffe.GiraffeViewEngine.Antiforgery
 
 // HTMX Attributes
 let _hxSwapOob  = attr "hx-swap-oob"
 let _hxTarget  = attr "hx-target"
 let _hxBoost  = attr "hx-boost"
 let _hxGet = attr "hx-get"
+let _hxPost = attr "hx-post"
 let _hxSwap = attr "hx-swap"
 let _hxTrigger = attr "hx-trigger"
 
@@ -109,12 +112,14 @@ let about = [
     a [ _class "big-link"
         _href "https://htmx.org/"] [encodedText "HTMX"] ]
 
-let counter (count: int) = [
-    form [ _id "increment-form"; _hxGet "/increment";  _hxSwap "outerHTML"] [
+let counter (count: int)(afTokens: AntiforgeryTokenSet) = [
+    form [ _id "increment-form"; _method "post"; _hxPost "/increment";
+           _hxSwap "outerHTML"] [
         h1 [] [rawText "Counter" ]
         p [ attr "role" "status" ] [
             rawText "Current count: "
             encodedText (string count) ]
+        antiforgeryInput afTokens
         input [ _type "hidden"; _name "Count"; _value (string (count + 1))]
         input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
             _value "Click me"] ] ]
