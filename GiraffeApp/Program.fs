@@ -38,13 +38,13 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
 [<CLIMutable>]
 type IncrementForm = { Count: int }
 
-let withAntiforgeryTokens (f: AntiforgeryTokenSet -> HttpHandler): HttpHandler =
+let getAndStoreAntiforgeryTokens (f: AntiforgeryTokenSet -> HttpHandler): HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
         let af = ctx.GetService<IAntiforgery>()
         f (af.GetAndStoreTokens ctx) next ctx
 
 let incrementHandler: HttpHandler =
-    withAntiforgeryTokens (fun tokens ->
+    getAndStoreAntiforgeryTokens (fun tokens ->
         bindForm<IncrementForm> None (fun payload -> 
                 htmlNodes (Views.counter payload.Count tokens)))
 
@@ -60,7 +60,7 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> withAntiforgeryTokens (
+                route "/counter" >=> getAndStoreAntiforgeryTokens (
                     fun tokens -> pageHandler "Counter" (Views.counter 0 tokens))
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
