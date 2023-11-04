@@ -56,19 +56,13 @@ let checkAntiforgeryTokens: HttpHandler =
         else
             RequestErrors.forbidden (text "Forbidden") next ctx
 
-let pageHandlerAntiforgery (title: string)(
-        view: AntiforgeryTokenSet -> XmlNode list)(
-        next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    let af = ctx.GetService<IAntiforgery>()
-    let nodes = view (af.GetAndStoreTokens ctx)
-    pageHandler title nodes next ctx
-
 let webApp =
     choose [
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> pageHandlerAntiforgery "Counter" (Views.counter 0)
+                route "/counter" >=> bindAntiforgeryTokens (
+                    fun tokens -> pageHandler "Counter" (Views.counter 0 tokens))
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
