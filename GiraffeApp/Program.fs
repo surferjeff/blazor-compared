@@ -49,7 +49,7 @@ let checkAntiforgeryTokens: HttpHandler =
         if af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously then
             next ctx
         else
-            RequestErrors.FORBIDDEN "Forbidden" next ctx
+            RequestErrors.forbidden (text "Forbidden") next ctx
 
 let pageHandlerAntiforgery (title: string)(
         view: AntiforgeryTokenSet -> XmlNode list)(
