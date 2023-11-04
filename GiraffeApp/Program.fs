@@ -15,7 +15,6 @@ open Giraffe.Htmx
 open Giraffe.ViewEngine
 open System.Globalization
 open Weather
-open Antiforgery
 
 // ---------------------------------
 // Web app
@@ -40,19 +39,23 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
 type IncrementForm = { Count: int }
 
 let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    bindForm<IncrementForm> None (fun payload -> 
-        htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
+    let af = ctx.GetService<IAntiforgery>()
     (match af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously with
     | true  -> bindForm<IncrementForm> None (fun payload -> 
         htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
     | false -> RequestErrors.FORBIDDEN "forbidden" next ctx)
+
+let counterHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
+    let af = ctx.GetService<IAntiforgery>()
+    let nodes = af.GetAndStoreTokens ctx |> Views.counter 0
+    pageHandler "Counter" nodes next ctx
 
 let webApp =
     choose [
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> csrfHtmlView Views.counter 0
+                route "/counter" >=> counterHandler
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
