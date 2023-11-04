@@ -38,10 +38,15 @@ let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpCon
 [<CLIMutable>]
 type IncrementForm = { Count: int }
 
-let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    let af = ctx.GetService<IAntiforgery>()
-    bindForm<IncrementForm> None (fun payload -> 
-            htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
+let bindAntiforgeryTokens (f: AntiforgeryTokenSet -> HttpHandler): HttpHandler =
+    fun (next: HttpFunc)(ctx: HttpContext) ->
+        let af = ctx.GetService<IAntiforgery>()
+        f (af.GetAndStoreTokens ctx) next ctx
+
+let incrementHandler: HttpHandler =
+    bindAntiforgeryTokens (fun tokens ->
+        bindForm<IncrementForm> None (fun payload -> 
+                htmlNodes (Views.counter payload.Count tokens)))
 
 let checkAntiforgeryTokens: HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
