@@ -15,9 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Middleware.fs" />
     <Compile Include="AntiforgeryViews.fs" />
     <Compile Include="Weather.fs" />
     <Compile Include="Views.fs" />
+    <Compile Include="MiddleHtmx.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

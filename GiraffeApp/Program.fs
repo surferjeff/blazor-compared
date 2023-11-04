@@ -5,55 +5,29 @@ open System.IO
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
-open Microsoft.AspNetCore.Http
-open Microsoft.AspNetCore.Antiforgery
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
-open Giraffe.Htmx
-open Giraffe.ViewEngine
-open System.Globalization
+open Middleware
+open MiddleHtmx
 open Weather
 
 // ---------------------------------
 // Web app
 // ---------------------------------
 
-let htmlNodes (htmlNodes : XmlNode list) : HttpHandler =
-    let bytes = RenderView.AsBytes.htmlNodes htmlNodes
-    fun (_ : HttpFunc) (ctx : HttpContext) ->
-        ctx.SetContentType "text/html; charset=utf-8"
-        ctx.WriteBytesAsync bytes
 
-let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
-    let boosted = Option.defaultValue false ctx.Request.Headers.HxBoosted
-    let menu = Views.navMenu ctx.Request.Path.Value
-    let main = Views.mainLayout menu view
-    let layout = if boosted then Views.boostedLayout else Views.layout
-    let nodes = layout title main
-    ctx.SetHttpHeader ("Vary", "HX-Boosted")
-    htmlNodes nodes next ctx
-    
+// Post payload for /increment.
 [<CLIMutable>]
 type IncrementForm = { Count: int }
 
-let getAndStoreAntiforgeryTokens (f: AntiforgeryTokenSet -> HttpHandler): HttpHandler =
-    fun (next: HttpFunc)(ctx: HttpContext) ->
-        let af = ctx.GetService<IAntiforgery>()
-        f (af.GetAndStoreTokens ctx) next ctx
-
+// Handler for /increment.  Returns new HTML with incremented count and a new
+// form.
 let incrementHandler: HttpHandler =
     getAndStoreAntiforgeryTokens (fun tokens ->
         bindForm<IncrementForm> None (fun payload -> 
                 htmlNodes (Views.counter payload.Count tokens)))
-
-let requireAntiforgeryToken: HttpHandler =
-    authorizeRequest (fun ctx -> 
-        let af = ctx.GetService<IAntiforgery>()
-        af.IsRequestValidAsync(ctx) |> Async.AwaitTask
-            |> Async.RunSynchronously)
-        (RequestErrors.forbidden (text "Forbidden"))
 
 let webApp =
     choose [
