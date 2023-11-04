@@ -2,6 +2,7 @@ module Views
 
 open Giraffe.ViewEngine
 open Microsoft.AspNetCore.Antiforgery
+open Giraffe.GiraffeViewEngine.Antiforgery
 
 // HTMX Attributes
 let _hxSwapOob  = attr "hx-swap-oob"
@@ -118,8 +119,8 @@ let counter (count: int)(afTokens: AntiforgeryTokenSet) = [
         p [ attr "role" "status" ] [
             rawText "Current count: "
             encodedText (string count) ]
+        antiforgeryInput afTokens
         input [ _type "hidden"; _name "Count"; _value (string (count + 1))]
-        input [ _type "hidden"; _name afTokens.FormFieldName; _value afTokens.RequestToken]
         input [ _type "submit"; _class "btn btn-primary"; _id "ClickMeButton";
             _value "Click me"] ] ]
 

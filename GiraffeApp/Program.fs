@@ -54,7 +54,7 @@ let checkAntiforgeryTokens: HttpHandler =
         if af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously then
             next ctx
         else
-            RequestErrors.forbidden (text "Forbidden") next ctx
+            RequestErrors.forbidden (text "Forbidden") earlyReturn ctx
 
 let webApp =
     choose [
