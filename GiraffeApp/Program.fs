@@ -40,11 +40,16 @@ type IncrementForm = { Count: int }
 
 let incrementHandler(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let af = ctx.GetService<IAntiforgery>()
-    if af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously then
-        bindForm<IncrementForm> None (fun payload -> 
+    bindForm<IncrementForm> None (fun payload -> 
             htmlNodes (Views.counter payload.Count (af.GetAndStoreTokens ctx))) next ctx
-    else
-        RequestErrors.FORBIDDEN "forbidden" next ctx
+
+let checkAntiforgeryTokens: HttpHandler =
+    fun (next: HttpFunc)(ctx: HttpContext) ->
+        let af = ctx.GetService<IAntiforgery>()
+        if af.IsRequestValidAsync(ctx) |> Async.AwaitTask |> Async.RunSynchronously then
+            next ctx
+        else
+            RequestErrors.FORBIDDEN "Forbidden" next ctx
 
 let pageHandlerAntiforgery (title: string)(
         view: AntiforgeryTokenSet -> XmlNode list)(
@@ -65,7 +70,7 @@ let webApp =
                 route "/forecasts" >=> warbler (fun _ ->
                     makeRandomForecasts 5 |> Views.forecasts |> htmlNodes)
             ]
-        POST >=> route "/increment" >=> incrementHandler
+        POST >=> route "/increment" >=> checkAntiforgeryTokens >=> incrementHandler
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------
