@@ -49,8 +49,11 @@ type IncrementForm struct {
 
 func main() {
 	app := fiber.New(fiber.Config{})
+	csrfConfig := csrf.ConfigDefault
+	csrfConfig.Extractor = csrf.CsrfFromForm("csrf_")
+	csrfConfig.ContextKey = "csrf_"
+	app.Use(csrf.New(csrfConfig))
 	app.Use(logger.New())
-	app.Use(csrf.New())
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -60,12 +63,14 @@ func main() {
 		return RenderPage(c, "About", about())
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
-		return RenderPage(c, "Counter", counter(0))
+		csrfToken, _ := c.Locals("csrf_").(string)
+		return RenderPage(c, "Counter", counter(0, csrfToken))
 	})
 	app.Post("/increment", func(c *fiber.Ctx) error {
 		form := IncrementForm{}
 		c.BodyParser(&form)
-		return RenderC(c, counter(form.Count))
+		csrfToken, _ := c.Locals("csrf_").(string)
+		return RenderC(c, counter(form.Count, csrfToken))
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
 		return RenderPage(c, "Weather forecast", fetchData())

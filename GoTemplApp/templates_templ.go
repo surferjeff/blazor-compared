@@ -327,7 +327,7 @@ func index() templ.Component {
 	})
 }
 
-func counter(count int) templ.Component {
+func counter(count int, csrf_token string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -368,6 +368,14 @@ func counter(count int) templ.Component {
 			return err
 		}
 		_, err = templBuffer.WriteString(templ.EscapeString(strconv.Itoa(count + 1)))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"><input type=\"hidden\" name=\"csrf_\" value=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(csrf_token))
 		if err != nil {
 			return err
 		}

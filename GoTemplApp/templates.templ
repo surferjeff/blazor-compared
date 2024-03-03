@@ -93,11 +93,12 @@ templ index() {
     @surveyPrompt("How is Blazor working for you?")
 }
 
-templ counter(count int) {
+templ counter(count int, csrf_token string) {
     <form id="increment-form" hx-post="/increment" hx-swap="outerHTML">
         <h1>Counter</h1>
         <p role="status">Current count: { strconv.Itoa(count) }</p>
         <input type="hidden" name="Count" value={ strconv.Itoa(count + 1)} />
+        <input type="hidden" name="csrf_" value={ csrf_token } />
         <input type="submit" class="btn btn-primary" id="ClickMeButton" value="Click me" />
     </form>
 }
