@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
+	"slices"
 	"time"
 
 	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/valyala/bytebufferpool"
 )
 
@@ -35,7 +35,7 @@ func RenderPage(c *fiber.Ctx, title string,
 	main := mainLayout(navMenu(c.Route().Path), component)
 	headers := c.GetReqHeaders()
 	var whichLayout templ.Component
-	if headers["Hx-Boosted"] == "true" {
+	if slices.Contains(headers["Hx-Boosted"], "true") {
 		whichLayout = boostedLayout(title, main)
 	} else {
 		whichLayout = layout(title, main)
@@ -49,9 +49,8 @@ type IncrementForm struct {
 
 func main() {
 	app := fiber.New(fiber.Config{})
-	session := session.New()
 	app.Use(logger.New())
-	app.Use(csrf.New(csrf.Config{Session: session.Storage}))
+	app.Use(csrf.New())
 	app.Static("/", "./wwwroot")
 
 	app.Get("/", func(c *fiber.Ctx) error {
