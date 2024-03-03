@@ -548,7 +548,7 @@ func surveyPrompt(title string) templ.Component {
 	})
 }
 
-func fetchData() templ.Component {
+func fetchData(csrfToken string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -579,7 +579,15 @@ func fetchData() templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</p><p hx-trigger=\"every 2s\" hx-post=\"/forecasts\" hx-swap=\"outerHTML\"><em>")
+		_, err = templBuffer.WriteString("</p><form hx-trigger=\"every 2s\" hx-post=\"/forecasts\" hx-swap=\"outerHTML\"><input type=\"hidden\" name=\"csrf_\" value=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(csrfToken))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"><p><em>")
 		if err != nil {
 			return err
 		}
@@ -588,7 +596,7 @@ func fetchData() templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</em></p>")
+		_, err = templBuffer.WriteString("</em></p></form>")
 		if err != nil {
 			return err
 		}
@@ -599,7 +607,7 @@ func fetchData() templ.Component {
 	})
 }
 
-func forecasts(forecasts []Forecast) templ.Component {
+func forecasts(forecasts []Forecast, csrfToken string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -612,7 +620,15 @@ func forecasts(forecasts []Forecast) templ.Component {
 			var_37 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<table class=\"table\" hx-trigger=\"every 2s\" hx-post=\"/forecasts\" hx-swap=\"outerHTML\"><thead><tr><th>")
+		_, err = templBuffer.WriteString("<form hx-trigger=\"every 2s\" hx-post=\"/forecasts\" hx-swap=\"outerHTML\"><input type=\"hidden\" name=\"csrf_\" value=\"")
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString(templ.EscapeString(csrfToken))
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("\"><table class=\"table\"><thead><tr><th>")
 		if err != nil {
 			return err
 		}
@@ -694,7 +710,7 @@ func forecasts(forecasts []Forecast) templ.Component {
 				return err
 			}
 		}
-		_, err = templBuffer.WriteString("</tbody></table>")
+		_, err = templBuffer.WriteString("</tbody></table></form>")
 		if err != nil {
 			return err
 		}

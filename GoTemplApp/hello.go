@@ -73,10 +73,12 @@ func main() {
 		return RenderC(c, counter(form.Count, csrfToken))
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
-		return RenderPage(c, "Weather forecast", fetchData())
+		csrfToken, _ := c.Locals("csrf_").(string)
+		return RenderPage(c, "Weather forecast", fetchData(csrfToken))
 	})
 	app.Post("/forecasts", func(c *fiber.Ctx) error {
-		return RenderC(c, forecasts(getForecasts(time.Now())))
+		csrfToken, _ := c.Locals("csrf_").(string)
+		return RenderC(c, forecasts(getForecasts(time.Now()), csrfToken))
 	})
 
 	log.Fatal(app.Listen(":3000"))

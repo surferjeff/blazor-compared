@@ -129,18 +129,23 @@ templ surveyPrompt(title string) {
     </div>    
 }
 
-templ fetchData() {
+templ fetchData(csrfToken string) {
     <h1>Weather forecast</h1>
 
     <p>This component demonstrates fetching data from a service.</p>
 
-    <p hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+    <form hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+    <input type="hidden" name="csrf_" value={ csrfToken } />
+    <p >
         <em>Loading...</em>
     </p>
+    </form>
 }
 
-templ forecasts(forecasts []Forecast) {
-    <table class="table" hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+templ forecasts(forecasts []Forecast, csrfToken string) {
+    <form hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+    <input type="hidden" name="csrf_" value={ csrfToken } />
+    <table class="table">
         <thead>
             <tr>
                 <th>Date</th>
@@ -160,4 +165,5 @@ templ forecasts(forecasts []Forecast) {
             }
         </tbody>
     </table>    
+    </form>
 }
