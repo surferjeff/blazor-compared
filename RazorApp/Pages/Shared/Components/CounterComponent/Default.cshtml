@@ -1,0 +1,9 @@
+@page
+@model CounterModel
+
+<form id=increment-form hx-get='/CounterPlus' hx-swap="outerHTML">
+    <h1>Counter</h1>
+    <p role="status">Current count: @Model.Count</p>
+    <input type="hidden" name="Count" value="@(Model.Count + 1)">
+    <input type="submit" class="btn btn-primary" id="ClickMeButton" value="Click me">
+</form>

@@ -1,9 +1,9 @@
 @page
 @model CounterModel
 @{
-    ViewData["Title"] = "Counter";
+    Layout = "_LayoutBodyOnly";
 }
 
 @await Component.InvokeAsync(typeof(ViewComponents.CounterComponent), new {
-    counterModel = Model
+    CounterModel = Model
 })
