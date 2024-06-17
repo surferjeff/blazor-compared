@@ -1,0 +1,8 @@
+@page
+@inject IHostApplicationLifetime Lifetime
+
+<p>Restarting...</p>
+
+@{
+    Lifetime.StopApplication();
+}
