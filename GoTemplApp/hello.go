@@ -47,11 +47,18 @@ type IncrementForm struct {
 	Count int
 }
 
+const csrfContextKey = "csrfToken"
+
+func csrfTokenFrom(c *fiber.Ctx) string {
+	token, _ := c.Locals(csrfContextKey).(string)
+	return token
+}
+
 func main() {
 	app := fiber.New(fiber.Config{})
 	csrfConfig := csrf.ConfigDefault
 	csrfConfig.Extractor = csrf.CsrfFromForm("csrf_")
-	csrfConfig.ContextKey = "csrf_"
+	csrfConfig.ContextKey = csrfContextKey
 	app.Use(csrf.New(csrfConfig))
 	app.Use(logger.New())
 	app.Static("/", "./wwwroot")
@@ -63,22 +70,18 @@ func main() {
 		return RenderPage(c, "About", about())
 	})
 	app.Get("/counter", func(c *fiber.Ctx) error {
-		csrfToken, _ := c.Locals("csrf_").(string)
-		return RenderPage(c, "Counter", counter(0, csrfToken))
+		return RenderPage(c, "Counter", counter(0, csrfTokenFrom(c)))
 	})
 	app.Post("/increment", func(c *fiber.Ctx) error {
 		form := IncrementForm{}
 		c.BodyParser(&form)
-		csrfToken, _ := c.Locals("csrf_").(string)
-		return RenderC(c, counter(form.Count, csrfToken))
+		return RenderC(c, counter(form.Count, csrfTokenFrom(c)))
 	})
 	app.Get("/fetchdata", func(c *fiber.Ctx) error {
-		csrfToken, _ := c.Locals("csrf_").(string)
-		return RenderPage(c, "Weather forecast", fetchData(csrfToken))
+		return RenderPage(c, "Weather forecast", fetchData(csrfTokenFrom(c)))
 	})
 	app.Post("/forecasts", func(c *fiber.Ctx) error {
-		csrfToken, _ := c.Locals("csrf_").(string)
-		return RenderC(c, forecasts(getForecasts(time.Now()), csrfToken))
+		return RenderC(c, forecasts(getForecasts(time.Now()), csrfTokenFrom(c)))
 	})
 
 	log.Fatal(app.Listen(":3000"))
