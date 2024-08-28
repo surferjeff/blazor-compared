@@ -60,8 +60,8 @@ let webApp =
         GET >=>
             choose [
                 route "/" >=> pageHandler "Home" Views.index
-                route "/counter" >=> getAndStoreAntiforgeryTokens (
-                    fun tokens -> pageHandler "Counter" (Views.counter 0 tokens))
+                route "/counter" >=>  (Views.counter 0 >> pageHandler "Counter"
+                    |> getAndStoreAntiforgeryTokens)
                 route "/about" >=> pageHandler "About" Views.about
                 route "/fetchdata" >=> pageHandler "Weather forecast"
                     Views.fetchData
