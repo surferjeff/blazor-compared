@@ -28,7 +28,7 @@ let randomString (length: int) =
     let random = Random()
     String.init length (fun _ -> string chars[random.Next(chars.Length)])
 
-type CssHead() =
+type Head() =
     let classes = SortedDictionary<ClassDef, string>()
 
     member this.Add (classDef: ClassDef) =
