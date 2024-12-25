@@ -25,3 +25,4 @@ go.work
 **/bin/
 
 *-src.tar.gz
+.DS_Store
