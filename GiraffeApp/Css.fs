@@ -2,7 +2,6 @@ module Css
 
 open System
 open System.Collections.Generic
-open Giraffe.ViewEngine
 
 [<Struct>]
 type ClassDef = {
@@ -14,7 +13,6 @@ type ClassDef = {
 let declTextFrom (decls: (string*string) list) =
     decls
     |> Seq.fold (fun lines decl -> $"\t{fst decl}: {snd decl};" :: lines) []
-    |> Seq.rev
     |> String.concat "\n"
 
 let cssClass (namePrefix: string) (decls: (string*string) list) =
