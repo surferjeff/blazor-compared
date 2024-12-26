@@ -29,11 +29,6 @@ let namedClass (decls: (string*string) list) =
 let namedClassText (declText: string) =
     { Name = ""; WithRandom = false; DeclText = declText }
 
-let bigYellow = cssClass "big-yellow " [
-    "font-size", "large"
-    "background", "yellow"
-]
-
 let randomString (length: int) =
     let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     let random = Random()
@@ -53,11 +48,10 @@ type Head() =
             classDefs.Add(classDef, name)
             name
     
-    member this.toXmlNode() =
+    member this.toStyleText() =
         let mutable lines = []
         for classDef in classDefs do
             lines <- "}" :: lines
             let classDef, className = classDef.Key, classDef.Value                
-            lines <- $"{className} {{" :: classDef.DeclText :: lines
-        let text = "" :: lines |> List.rev |> String.concat "\n"
-        style [] [str text]
+            lines <- $".{className} {{" :: classDef.DeclText :: lines
+        "" :: lines |> String.concat "\n"
