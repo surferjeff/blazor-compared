@@ -9,6 +9,8 @@ let _hxBoost  = attr "hx-boost"
 let _hxGet = attr "hx-get"
 let _hxSwap = attr "hx-swap"
 let _hxTrigger = attr "hx-trigger"
+let _hxExt = attr "hx-ext"
+let _hxHead = attr "hx-head"
 
 let mediaWide = Css.media "(min-width: 641px)"
 
@@ -49,13 +51,15 @@ let layout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) = [
                    _href "/css/BlazorApp.styles.css" ]
             style [] [str (cssHead.toStyleText())]
         ]
-        body [] [
+        body [ _hxExt "head-support"] [
             div [ _id "main-layout"] content
-            script [ _src "/htmx1.9.6.min.js" ] [] ] ] ]
+            script [ _src "/htmx2.0.4.min.js" ] [] 
+            script [ _src "/htmx-head-support2.0.1.js" ] [] 
+        ] ] ]
 
 let boostedLayout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) =
-    title [ _hxSwapOob "title" ] [ encodedText atitle ]
-    :: head [ _hxSwapOob "head"; _hxSwap "beforeend"] [
+    head [ _hxHead "append" ] [
+        title [] [ encodedText atitle ]
         style [] [str (cssHead.toStyleText())]
     ] :: content
 
