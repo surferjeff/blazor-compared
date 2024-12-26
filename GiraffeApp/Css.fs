@@ -29,12 +29,11 @@ let randomString (length: int) =
     String.init length (fun _ -> string chars[random.Next(chars.Length)])
 
 let declTextFrom (decls: (string*string) list) =
-    let mutable lines = []
-    lines <- "}" :: lines
-    for decl in decls do
-        lines <- $"\t{fst decl}: {snd decl};" :: lines
-    lines <- "{" :: lines
-    lines |> List.rev |> String.concat "\n"
+    decls
+    |> Seq.fold (fun lines decl -> $"\t{fst decl}: {snd decl};" :: lines) ["}"]
+    |> (fun lines -> "{" :: lines)
+    |> Seq.rev
+    |> String.concat "\n"
 
 type Head() =
     let classDefs = SortedDictionary<ClassDef, string>()
