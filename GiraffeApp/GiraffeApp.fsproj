@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Giraffe" Version="6.0.0" />
-    <PackageReference Include="Giraffe.Htmx" Version="1.9.6" />
-    <PackageReference Include="Giraffe.ViewEngine" Version="1.3.*" />
+    <PackageReference Include="Giraffe" Version="7.0.2" />
+    <PackageReference Include="Giraffe.Htmx" Version="2.0.4" />
+    <PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
