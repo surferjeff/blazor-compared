@@ -29,14 +29,13 @@ let namedClass (decls: (string*string) list) =
 let namedClassText (declText: string) =
     { Name = ""; WithRandom = false; DeclText = declText }
 
-let randomString (length: int) =
+let randomString (random: Random) (length: int) =
     let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    let random = Random()
     String.init length (fun _ -> string chars[random.Next(chars.Length)])
 
 type Head() =
     let classDefs = SortedDictionary<ClassDef, string>()
-    let rando = randomString 6
+    let randomStr() = randomString (Random()) 6
 
     member this.Add (classDef: ClassDef) =
         match (classDefs.TryGetValue classDef), classDef.WithRandom with
@@ -44,7 +43,7 @@ type Head() =
         | _, false -> classDefs.Add(classDef, classDef.Name); classDef.Name
         | _, true ->
             let sep = if classDef.Name = "" then "" else "-"
-            let name = $"{classDef.Name}{sep}{rando}"
+            let name = $"{classDef.Name}{sep}{randomStr()}"
             classDefs.Add(classDef, name)
             name
     

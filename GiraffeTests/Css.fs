@@ -1,7 +1,6 @@
 module Tests
 
 open Expecto
-open GiraffeApp.App
 
 [<Tests>]
 let tests =
