@@ -59,9 +59,9 @@ let layout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) = [
 
 let boostedLayout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) =
     head [ _hxHead "append" ] [
-        title [] [ encodedText atitle ]
-        style [] [str (cssHead.toStyleText())]
-    ] :: content
+        style [] [str (cssHead.toStyleText())]]
+    :: title [_hxSwapOob "title"] [ encodedText atitle ]
+    :: content
 
 let mainLayout (cssHead: Css.Head) (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
     div [ _class (cssHead.Add pageClass) ] [
