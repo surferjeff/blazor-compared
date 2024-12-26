@@ -1,6 +1,7 @@
 module Tests
 
 open Expecto
+open System.IO
 
 [<Tests>]
 let tests =
@@ -15,6 +16,21 @@ let tests =
       printfn "class name = %s" className
       printfn "%s" (head.toStyleText())
       Expect.equal className (head.Add bigYellow) ""
+
+    testCase "Generate code" <| fun _ ->
+      use fout = new StreamWriter("../../../CssProperties.fs")
+      File.ReadAllLines "../../../css-properties.txt"
+      |> Array.iter (fun line ->
+        line.Split('-')
+        |> Array.mapi (fun i word ->
+          match i with
+          | 0 -> word
+          | _ -> word.Substring(0, 1).ToUpper() + word.Substring(1)
+        )
+        |> String.concat ""
+        |> fun name -> fprintfn fout "let %s = property \"%s\"" name line)
+      
+      ()   
 
     // testCase "when true is not (should fail)" <| fun _ ->
     //   let subject = false
