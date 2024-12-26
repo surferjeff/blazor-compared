@@ -7,8 +7,8 @@ let tests =
   testList "Css" [
     testCase "Big Yellow" <| fun _ ->
       let bigYellow = Css.scopedClass "big-yellow" |> Css.mediaAll [
-        "background", "yellow"
-        "font-size", "large"
+        Css.property "background" "yellow"
+        Css.property "font-size" "large"
       ]
       let head = Css.Head()
       let className = head.Add bigYellow
