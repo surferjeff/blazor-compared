@@ -51,4 +51,4 @@ type Head() =
             lines <- "}" :: lines
             let classDef, className = classDef.Key, classDef.Value                
             lines <- $".{className} {{" :: classDef.DeclText :: lines
-        "" :: lines |> String.concat "\n"
+        "" :: lines |> String.concat ""
