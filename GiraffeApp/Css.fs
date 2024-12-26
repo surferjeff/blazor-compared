@@ -8,17 +8,28 @@ open Giraffe.ViewEngine
 type ClassDef = {
     Name: string
     WithRandom: bool
-    Decls: (string*string) list
+    DeclText: string
 }
 
+let declTextFrom (decls: (string*string) list) =
+    decls
+    |> Seq.fold (fun lines decl -> $"\t{fst decl}: {snd decl};" :: lines) []
+    |> Seq.rev
+    |> String.concat "\n"
+
 let cssClass (namePrefix: string) (decls: (string*string) list) =
-    { Name = namePrefix; WithRandom = true; Decls = decls}
+    { Name = namePrefix; WithRandom = true; DeclText = declTextFrom decls }
+
+let cssClassText (namePrefix: string) (declText: string) =
+    { Name = namePrefix; WithRandom = true; DeclText = declText }
 
 let namedClass (decls: (string*string) list) =
-    { Name = ""; WithRandom = false; Decls = decls}
+    { Name = ""; WithRandom = false; DeclText = declTextFrom decls }
 
+let namedClassText (declText: string) =
+    { Name = ""; WithRandom = false; DeclText = declText }
 
-let myClass = cssClass "big-yellow " [
+let bigYellow = cssClass "big-yellow " [
     "font-size", "large"
     "background", "yellow"
 ]
@@ -28,15 +39,9 @@ let randomString (length: int) =
     let random = Random()
     String.init length (fun _ -> string chars[random.Next(chars.Length)])
 
-let declTextFrom (decls: (string*string) list) =
-    decls
-    |> Seq.fold (fun lines decl -> $"\t{fst decl}: {snd decl};" :: lines) ["}"]
-    |> (fun lines -> "{" :: lines)
-    |> Seq.rev
-    |> String.concat "\n"
-
 type Head() =
     let classDefs = SortedDictionary<ClassDef, string>()
+    let rando = randomString 6
 
     member this.Add (classDef: ClassDef) =
         match (classDefs.TryGetValue classDef), classDef.WithRandom with
@@ -44,7 +49,6 @@ type Head() =
         | _, false -> classDefs.Add(classDef, classDef.Name); classDef.Name
         | _, true ->
             let sep = if classDef.Name = "" then "" else "-"
-            let rando = randomString 6
             let name = $"{classDef.Name}{sep}{rando}"
             classDefs.Add(classDef, name)
             name
@@ -54,8 +58,6 @@ type Head() =
         for classDef in classDefs do
             lines <- "}" :: lines
             let classDef, className = classDef.Key, classDef.Value                
-            for decl in classDef.Decls do
-                lines <- $"\t{fst decl}: {snd decl};" :: lines
-            lines <- $"{className} {{" :: lines
+            lines <- $"{className} {{" :: classDef.DeclText :: lines
         let text = "" :: lines |> List.rev |> String.concat "\n"
         style [] [str text]
