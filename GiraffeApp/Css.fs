@@ -4,22 +4,22 @@ open System
 open System.Collections.Generic
 
 [<Struct>]
-type Declaration = {
+type Property = {
     key: string
     value: string
 }
 
-let decl (key: string) (value: string) = 
+let property (key: string) (value: string) = 
     { key = key; value = value }
 
-let position = decl "position"
-let display = decl "display"
-let flexDirection = decl "flex-direction"
+let position = property "position"
+let display = property "display"
+let flexDirection = property "flex-direction"
 
 [<Struct>]
 type MediaQuery = {
     Media: string
-    DeclText: string
+    PropText: string
 }
 
 [<Struct>]
@@ -29,29 +29,29 @@ type ClassDef = {
     WithRandom: bool
 }
 
-let defaultClassDef = {
+let private defaultClassDef = {
     MediaQueries = []
     Name = ""
     WithRandom = true
 }
 
-let declTextFrom (decls: Declaration list) =
-    decls
-    |> Seq.fold (fun lines decl -> $"\t{decl.key}: {decl.value};" :: lines) []
+let private propTextFrom (props: Property list) =
+    props
+    |> Seq.fold (fun lines prop -> $"\t{prop.key}: {prop.value};" :: lines) []
     |> String.concat "\n"
 
 let scopedClass (namePrefix: string) =
     { defaultClassDef with Name = namePrefix }
 
-let mediaAll (decls: Declaration list) (classDef: ClassDef) =
-    let mediaDecls =  { Media = ""; DeclText = declTextFrom decls } 
-    { classDef with MediaQueries = mediaDecls :: classDef.MediaQueries }
+let mediaAll (props: Property list) (classDef: ClassDef) =
+    let mediaProps =  { Media = ""; PropText = propTextFrom props } 
+    { classDef with MediaQueries = mediaProps :: classDef.MediaQueries }
 
-let media (media: string) (decls: Declaration list) (classDef: ClassDef) =
-    let mediaDecls =  { Media = media; DeclText = declTextFrom decls } 
-    { classDef with MediaQueries = mediaDecls :: classDef.MediaQueries }
+let media (media: string) (props: Property list) (classDef: ClassDef) =
+    let mediaProps =  { Media = media; PropText = propTextFrom props } 
+    { classDef with MediaQueries = mediaProps :: classDef.MediaQueries }
 
-let randomString (random: Random) (length: int) =
+let private randomString (random: Random) (length: int) =
     let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     String.init length (fun _ -> string chars[random.Next(chars.Length)])
 
@@ -59,12 +59,12 @@ let randomString (random: Random) (length: int) =
 type private ClassDecl = {
     Media: string
     ClassName: string
-    DeclText: string
+    PropText: string
 }
 
 type Head() =
     let classNames = SortedDictionary<string, string>()
-    let classDecls = SortedSet<ClassDecl>()
+    let classProps = SortedSet<ClassDecl>()
     let randomStr() = randomString (Random()) 6
 
     member this.Add (classDef: ClassDef) =
@@ -82,16 +82,16 @@ type Head() =
             let headKey = {
                 Media = query.Media
                 ClassName = className
-                DeclText = query.DeclText
+                PropText = query.PropText
             }
-            classDecls.Add headKey |> ignore
+            classProps.Add headKey |> ignore
             
         className
 
     member this.toStyleText() =
         let mutable lines = []
         let mutable prevQuery = None
-        for classDecl in classDecls do
+        for classDecl in classProps do
             match prevQuery, classDecl.Media with
             | None, "" -> () // The first group has no enclosing media query.
             | None, query ->
@@ -101,7 +101,7 @@ type Head() =
             | Some _, query ->
                 lines <- $"@media {query} {{" :: "}" :: lines
                 prevQuery <- Some query
-            lines <- "}" :: classDecl.DeclText :: $".{classDecl.ClassName} {{" :: lines
+            lines <- "}" :: classDecl.PropText :: $".{classDecl.ClassName} {{" :: lines
         if prevQuery |> Option.isSome then
             lines <- "}" :: lines
         lines |> List.rev |> String.concat "\n"

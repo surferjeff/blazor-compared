@@ -6,7 +6,7 @@ open Expecto
 let tests =
   testList "Css" [
     testCase "Big Yellow" <| fun _ ->
-      let bigYellow = Css.cssClass "big-yellow" [
+      let bigYellow = Css.scopedClass "big-yellow" |> Css.mediaAll [
         "background", "yellow"
         "font-size", "large"
       ]
