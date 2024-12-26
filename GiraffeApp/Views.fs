@@ -10,8 +10,14 @@ let _hxGet = attr "hx-get"
 let _hxSwap = attr "hx-swap"
 let _hxTrigger = attr "hx-trigger"
 
+let pageClass = Css.cssClassText "page" """
+    position: relative;
+    display: flex;
+    flex-direction: column;
+"""
+
 // Layouts
-let layout (atitle: string) (content: XmlNode list) = [
+let layout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) = [
     html [ _lang "en" ] [
         head [] [
             meta [ _charset "utf-8" ]
@@ -23,16 +29,20 @@ let layout (atitle: string) (content: XmlNode list) = [
             link [ _rel  "stylesheet"; _type "text/css";
                    _href "/css/open-iconic/font/css/open-iconic-bootstrap.min.css" ]                   
             link [ _rel  "stylesheet"; _type "text/css";
-                   _href "/css/BlazorApp.styles.css" ] ]
+                   _href "/css/BlazorApp.styles.css" ]
+            style [] [str (cssHead.toStyleText())]
+        ]
         body [] [
             div [ _id "main-layout"] content
             script [ _src "/htmx1.9.6.min.js" ] [] ] ] ]
 
-let boostedLayout (atitle: string) (content: XmlNode list) =
-    title [ _hxSwapOob "title" ] [ encodedText atitle ] :: content
+let boostedLayout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) =
+    title [ _hxSwapOob "title" ] [ encodedText atitle ]
+    :: style [] [str (cssHead.toStyleText())]
+    :: content
 
-let mainLayout (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
-    div [ _class "page" ] [
+let mainLayout (cssHead: Css.Head) (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
+    div [ _class (cssHead.Add pageClass) ] [
         div [ _class "sidebar" ] navMenu
         main [] [
             div [ _class "top-row px-4" ] [

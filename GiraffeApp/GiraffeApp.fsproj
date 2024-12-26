@@ -12,6 +12,7 @@
     <PackageReference Include="Giraffe.ViewEngine" Version="1.4.*" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Css.fs" />
     <Compile Include="Weather.fs" />
     <Compile Include="Views.fs" />
     <Compile Include="Program.fs" />

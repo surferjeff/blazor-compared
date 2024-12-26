@@ -27,10 +27,11 @@ let htmlNodes (htmlNodes : XmlNode list) : HttpHandler =
 
 let pageHandler (title: string)(view: XmlNode list)(next: HttpFunc)(ctx: HttpContext): HttpFuncResult =
     let boosted = Option.defaultValue false ctx.Request.Headers.HxBoosted
+    let cssHead = Css.Head()
     let menu = Views.navMenu ctx.Request.Path.Value
-    let main = Views.mainLayout menu view
+    let main = Views.mainLayout cssHead menu view
     let layout = if boosted then Views.boostedLayout else Views.layout
-    let nodes = layout title main
+    let nodes = layout cssHead title main
     ctx.SetHttpHeader ("Vary", "HX-Boosted")
     htmlNodes nodes next ctx
     
@@ -102,16 +103,19 @@ let configureLogging (builder : ILoggingBuilder) =
 let main args =
     let contentRoot = Directory.GetCurrentDirectory()
     let webRoot     = Path.Combine(contentRoot, "WebRoot")
-    Host.CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(
-            fun webHostBuilder ->
-                webHostBuilder
-                    .UseContentRoot(contentRoot)
-                    .UseWebRoot(webRoot)
-                    .Configure(Action<IApplicationBuilder> configureApp)
-                    .ConfigureServices(configureServices)
-                    .ConfigureLogging(configureLogging)
-                    |> ignore)
-        .Build()
-        .Run()
+    printfn "Building host..."
+    let host = 
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(
+                fun webHostBuilder ->
+                    webHostBuilder
+                        .UseContentRoot(contentRoot)
+                        .UseWebRoot(webRoot)
+                        .Configure(Action<IApplicationBuilder> configureApp)
+                        .ConfigureServices(configureServices)
+                        .ConfigureLogging(configureLogging)
+                        |> ignore)
+            .Build()
+    printfn "Built host."
+    host.Run()
     0
