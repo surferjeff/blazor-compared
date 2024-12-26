@@ -10,14 +10,27 @@ let _hxGet = attr "hx-get"
 let _hxSwap = attr "hx-swap"
 let _hxTrigger = attr "hx-trigger"
 
+let mediaWide = Css.media "(min-width: 641px)"
+
 let pageClass =
     Css.scopedClass "page"
     |>  Css.mediaAll [
             Css.position "relative"
             Css.display "flex"
             Css.flexDirection "column"]
-    |> Css.media "(min-width: 641px)" [
+    |> mediaWide [
         Css.flexDirection "row"
+    ]
+
+let sidebarClass =
+    Css.scopedClass "sidebar"
+    |> Css.mediaAll [
+        Css.backgroundImage "linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%)" ]
+    |> mediaWide [
+        Css.width  "250px"
+        Css.height "100vh"
+        Css.position "sticky"
+        Css.top "0"
     ]
 
 // Layouts
@@ -47,7 +60,7 @@ let boostedLayout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) =
 
 let mainLayout (cssHead: Css.Head) (navMenu: XmlNode list) (mainArticle: XmlNode list) = [
     div [ _class (cssHead.Add pageClass) ] [
-        div [ _class "sidebar" ] navMenu
+        div [ _class (cssHead.Add sidebarClass) ] navMenu
         main [] [
             div [ _class "top-row px-4" ] [
                 a [ _href "/about"
