@@ -5,7 +5,7 @@ let mediaWide = media "(min-width: 641px)"
 
 let pageClass =
     scopedClass "page"
-    |>  mediaAll [
+    |> mediaAll [
             position "relative"
             display "flex"
             flexDirection "column"]
