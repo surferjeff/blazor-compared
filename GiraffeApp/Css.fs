@@ -2,6 +2,8 @@ module Css
 
 open System
 open System.Collections.Generic
+open System.IO.Hashing
+open System.Text
 
 [<Struct>]
 type Property = {
@@ -13,22 +15,33 @@ let property (key: string) (value: string) =
     { key = key; value = value }
 
 [<Struct>]
-type MediaQuery = {
-    Media: string
+type Block = {
+    MediaQuery: string
     PropText: string
+    Hash: uint64
 }
+
+let blockFrom (mediaQuery: string) (propText: string) =
+    let hasher = XxHash64()
+    hasher.Append(Encoding.UTF8.GetBytes(mediaQuery))
+    hasher.Append(Encoding.UTF8.GetBytes(propText))
+    { 
+        MediaQuery = mediaQuery
+        PropText = propText
+        Hash = hasher.GetCurrentHashAsUInt64()
+    }
 
 [<Struct>]
 type ClassDef = {
-    MediaQueries: MediaQuery list
+    Blocks: Block list
     Name: string
-    WithRandom: bool
+    Hash: uint64
 }
 
 let private defaultClassDef = {
-    MediaQueries = []
+    Blocks = []
     Name = ""
-    WithRandom = true
+    Hash = 0UL
 }
 
 let private propTextFrom (props: Property list) =
@@ -39,17 +52,23 @@ let private propTextFrom (props: Property list) =
 let scopedClass (namePrefix: string) =
     { defaultClassDef with Name = namePrefix }
 
-let mediaAll (props: Property list) (classDef: ClassDef) =
-    let mediaProps =  { Media = ""; PropText = propTextFrom props } 
-    { classDef with MediaQueries = mediaProps :: classDef.MediaQueries }
-
 let media (media: string) (props: Property list) (classDef: ClassDef) =
-    let mediaProps =  { Media = media; PropText = propTextFrom props } 
-    { classDef with MediaQueries = mediaProps :: classDef.MediaQueries }
+    let block = blockFrom media (propTextFrom props)
+    { classDef with
+        Blocks = block :: classDef.Blocks
+        Hash = classDef.Hash ^^^ block.Hash
+    }
 
-let private randomString (random: Random) (length: int) =
-    let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    String.init length (fun _ -> string chars[random.Next(chars.Length)])
+let mediaAll (props: Property list) (classDef: ClassDef) =
+    media "" props classDef
+
+let private stringFromHash (hash: uint64) =
+    let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+    let result, _ = 
+        {1..6}
+        |> Seq.mapFold (fun hash _ ->
+            chars.[int (hash % uint64 chars.Length)], hash / uint64 chars.Length) hash
+    result |> String.Concat
 
 [<Struct>]
 type private ClassDecl = {
@@ -61,22 +80,19 @@ type private ClassDecl = {
 type Head() =
     let classNames = SortedDictionary<string, string>()
     let classProps = SortedSet<ClassDecl>()
-    let randomStr() = randomString (Random()) 6
 
     member this.Add (classDef: ClassDef) =
         let className =
             match classNames.TryGetValue classDef.Name with
             | true, name -> name
             | _ -> 
-                let name =
-                    if classDef.WithRandom then $"{classDef.Name}-{randomStr()}"
-                    else classDef.Name
+                let name = $"{classDef.Name}-{stringFromHash classDef.Hash}"
                 classNames.Add(classDef.Name, name)
                 name
 
-        for query in classDef.MediaQueries do
+        for query in classDef.Blocks do
             let headKey = {
-                Media = query.Media
+                Media = query.MediaQuery
                 ClassName = className
                 PropText = query.PropText
             }
