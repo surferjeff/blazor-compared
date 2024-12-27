@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Css.fs" />
+    <Compile Include="CssClasses.fs" />
     <Compile Include="Weather.fs" />
     <Compile Include="Views.fs" />
     <Compile Include="Program.fs" />

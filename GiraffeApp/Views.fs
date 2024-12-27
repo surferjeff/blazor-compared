@@ -1,6 +1,7 @@
 module Views
 
 open Giraffe.ViewEngine
+open CssClasses
 
 // HTMX Attributes
 let _hxSwapOob  = attr "hx-swap-oob"
@@ -11,29 +12,6 @@ let _hxSwap = attr "hx-swap"
 let _hxTrigger = attr "hx-trigger"
 let _hxExt = attr "hx-ext"
 let _hxHead = attr "hx-head"
-
-let mediaWide = Css.media "(min-width: 641px)"
-
-let pageClass =
-    Css.scopedClass "page"
-    |>  Css.mediaAll [
-            Css.position "relative"
-            Css.display "flex"
-            Css.flexDirection "column"]
-    |> mediaWide [
-        Css.flexDirection "row"
-    ]
-
-let sidebarClass =
-    Css.scopedClass "sidebar"
-    |> Css.mediaAll [
-        Css.backgroundImage "linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%)" ]
-    |> mediaWide [
-        Css.width  "250px"
-        Css.height "100vh"
-        Css.position "sticky"
-        Css.top "0"
-    ]
 
 // Layouts
 let layout (cssHead: Css.Head) (atitle: string) (content: XmlNode list) = [
