@@ -26,3 +26,5 @@ go.work
 
 *-src.tar.gz
 .DS_Store
+
+node_modules/
