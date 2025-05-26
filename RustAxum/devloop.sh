@@ -1,0 +1,1 @@
+ls Cargo.toml src/* | entr -r sh -c 'make run'
