@@ -1,6 +1,10 @@
-use axum::{extract::Path, http::StatusCode, response::{Html, IntoResponse}, routing::get, Router};
-
+use axum::extract::Path;
+use axum::http::StatusCode;
+use axum::response::{Html, IntoResponse};
+use axum::routing::get;
+use axum::Router;
 use askama::Template;
+use tower_http::services::ServeDir;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -22,7 +26,8 @@ async fn hello(Path(name): Path<String>) -> impl IntoResponse {
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .route("/{name}", get(hello));
+        .route("/hello/{name}", get(hello))
+        .fallback_service(ServeDir::new("static/"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();
     axum::serve(listener, app).await.unwrap();
