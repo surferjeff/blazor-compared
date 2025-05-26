@@ -23,6 +23,11 @@ go.work
 **/.vscode/
 **/obj/
 **/bin/
+**/node_modules/
+RustAxum/target/
+stress/test-results/
+stress/playwright-report/
+
 
 *-src.tar.gz
 .DS_Store
