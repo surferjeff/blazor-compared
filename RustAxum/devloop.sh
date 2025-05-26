@@ -1,1 +1,1 @@
-ls Cargo.toml src/* | entr -r sh -c 'make run'
+ls Cargo.toml Makefile templates/* src/* | entr -r sh -c 'make run'
