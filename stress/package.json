@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test --ui"
+    "test": "playwright test"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +11,7 @@
   "description": "",
   "devDependencies": {
     "@playwright/test": "^1.52.0",
-    "@types/node": "^22.15.21"
+    "@types/node": "^22.15.21",
+    "ts-node": "^10.9.2"
   }
 }
