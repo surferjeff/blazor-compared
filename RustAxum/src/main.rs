@@ -8,12 +8,21 @@ use tower_http::services::ServeDir;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-struct HelloTemplate {
-    name: String,
+struct HelloTemplate<'a> {
+    name: &'a str,
 }
 
+// #[derive(Template)]
+// #[template(path = "layout.html")]
+// struct LayoutTemplate<'a, T: Template> {
+//     title: &'a str,
+//     main_html: &'a T
+// }
+
+
+
 async fn hello(Path(name): Path<String>) -> impl IntoResponse {
-    let template = HelloTemplate { name };
+    let template = HelloTemplate { name: name.as_str() };
     match template.render() {
         Ok(html) => Html(html).into_response(),
         Err(err) => (
