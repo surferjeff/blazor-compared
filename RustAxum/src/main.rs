@@ -23,17 +23,25 @@ struct LayoutTemplate<'a, T: Template> {
     main_html: &'a T
 }
 
+trait IntoHtml {
+    fn into_html(self) -> impl IntoResponse;
+}
 
+impl IntoHtml for askama::Result<String> {
+    fn into_html(self) -> impl IntoResponse {
+        match self {
+            Ok(html) => Html(html).into_response(),
+            Err(err) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to render template. Error: {err}"),
+            ).into_response(),
+        }        
+    }
+}
 
 async fn hello(Path(name): Path<String>) -> impl IntoResponse {
     let template = HelloTemplate { name: name.as_str() };
-    match template.render() {
-        Ok(html) => Html(html).into_response(),
-        Err(err) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Failed to render template. Error: {err}"),
-        ).into_response(),
-    }
+    template.render().into_html()
 }
 
 async fn goodday() -> impl IntoResponse {
@@ -42,13 +50,7 @@ async fn goodday() -> impl IntoResponse {
         title: "Good Day",
         main_html: &goodday
     };
-    match template.render() {
-        Ok(html) => Html(html).into_response(),
-        Err(err) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Failed to render template. Error: {err}"),
-        ).into_response(),
-    }
+    template.render().into_html()
 }
 
 #[tokio::main]
