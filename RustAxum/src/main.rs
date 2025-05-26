@@ -12,12 +12,16 @@ struct HelloTemplate<'a> {
     name: &'a str,
 }
 
-// #[derive(Template)]
-// #[template(path = "layout.html")]
-// struct LayoutTemplate<'a, T: Template> {
-//     title: &'a str,
-//     main_html: &'a T
-// }
+#[derive(Template)]
+#[template(path = "goodday.html")]
+struct GoodDayTemplate { }
+
+#[derive(Template)]
+#[template(path = "layout.html")]
+struct LayoutTemplate<'a, T: Template> {
+    title: &'a str,
+    main_html: &'a T
+}
 
 
 
@@ -32,10 +36,26 @@ async fn hello(Path(name): Path<String>) -> impl IntoResponse {
     }
 }
 
+async fn goodday() -> impl IntoResponse {
+    let goodday = GoodDayTemplate {};
+    let template = LayoutTemplate {
+        title: "Good Day",
+        main_html: &goodday
+    };
+    match template.render() {
+        Ok(html) => Html(html).into_response(),
+        Err(err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to render template. Error: {err}"),
+        ).into_response(),
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let app = Router::new()
         .route("/hello/{name}", get(hello))
+        .route("/goodday", get(goodday))
         .fallback_service(ServeDir::new("static/"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();

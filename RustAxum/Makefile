@@ -1,4 +1,4 @@
-DEPS=src/*
+DEPS=Makefile src/* templates/* 
 
 build: ${DEPS}
 	cargo build
