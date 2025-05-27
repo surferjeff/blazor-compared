@@ -86,6 +86,7 @@ impl IntoHtml for askama::Result<String> {
                 format!("Failed to render template. Error: {err}"),
             ).into_response(),
         }        
+        ; todo!("Set the Vary: HxBoosted header.")
     }
 }
 
