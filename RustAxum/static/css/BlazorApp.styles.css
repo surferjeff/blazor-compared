@@ -210,3 +210,10 @@ main {
 #toggle-menu:checked ~ #nav-menu {
     display: block;
 }
+
+.about-link {
+    display: block;
+    font-size: x-large;
+    text-decoration: none;
+    text-align: center;
+}

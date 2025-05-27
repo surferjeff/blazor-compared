@@ -36,6 +36,27 @@ struct NavMenuTemplate<'a> {
     path: &'a str,
 }
 
+#[derive(Template)]
+#[template(path = "about.html")]
+struct AboutTemplate { }
+
+#[derive(Template)]
+#[template(path = "home.html")]
+struct HomeTemplate { }
+
+#[derive(Template)]
+#[template(path = "survey.html")]
+struct SurveyTemplate<'a> { 
+    title: &'a str
+}
+
+
+impl HomeTemplate {
+    pub fn survey<'a> (&'a self, title: &'a str) -> SurveyTemplate<'a> {
+        SurveyTemplate { title }
+    }
+}
+
 trait IntoHtml {
     fn into_html(self) -> impl IntoResponse;
 }
@@ -71,15 +92,30 @@ async fn index() -> impl IntoResponse {
         title: "Home",
         main_html: &MainLayoutTemplate {
             nav_menu_html: &NavMenuTemplate { path: "/" },
-            main_article_html: &GoodDayTemplate {},
+            main_article_html: &HomeTemplate {},
         }
     }.render().into_html()
 }
+
+
+
+async fn about() -> impl IntoResponse {
+    LayoutTemplate {
+        title: "Home",
+        main_html: &MainLayoutTemplate {
+            nav_menu_html: &NavMenuTemplate { path: "/about" },
+            main_article_html: &AboutTemplate {},
+        }
+    }.render().into_html()
+}
+
+
 
 #[tokio::main]
 async fn main() {
     let app = Router::new()
         .route("/",  get(index))
+        .route("/about", get(about))
         .route("/hello/{name}", get(hello))
         .route("/goodday", get(goodday))
         .fallback_service(ServeDir::new("static/"));
