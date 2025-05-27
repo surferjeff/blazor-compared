@@ -1,5 +1,5 @@
 use axum::extract::OriginalUri;
-use axum::http::StatusCode;
+use axum::http::{HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse};
 use axum::routing::{get, post};
 use axum::{Form, Router};
@@ -20,6 +20,13 @@ struct LayoutTemplate<'a, T: Template> {
 #[template(path = "main_layout.html")]
 struct MainLayoutTemplate<'a, NM: Template, MA:Template> {
     nav_menu_html: &'a NM,
+    main_article_html: &'a MA
+}
+
+#[derive(Template)]
+#[template(path = "boosted_layout.html")]
+struct BoostedLayoutTemplate<'a, MA:Template> {
+    title: &'a str,
     main_article_html: &'a MA
 }
 
@@ -82,22 +89,21 @@ impl IntoHtml for askama::Result<String> {
     }
 }
 
-async fn index(uri: OriginalUri) -> impl IntoResponse {
-    render_main_layout_page("Home", uri.0.path(), &HomeTemplate {})
+async fn index(uri: OriginalUri, headers: HeaderMap) -> impl IntoResponse {
+    render_main_layout_page("Home", uri.0.path(), headers, &HomeTemplate {})
 }
 
-async fn about(uri: OriginalUri) -> impl IntoResponse {
-    render_main_layout_page("About", uri.0.path(), &AboutTemplate {})
+async fn about(uri: OriginalUri, headers: HeaderMap) -> impl IntoResponse {
+    render_main_layout_page("About", uri.0.path(), headers, &AboutTemplate {})
 }
 
-async fn counter(uri: OriginalUri) -> impl IntoResponse {
-    render_main_layout_page("Counter", uri.0.path(), &CounterTemplate { count: 0 })
+async fn counter(uri: OriginalUri, headers: HeaderMap) -> impl IntoResponse {
+    render_main_layout_page("Counter", uri.0.path(), headers, &CounterTemplate { count: 0 })
 }
 
-async fn fetchdata(uri: OriginalUri) -> impl IntoResponse {
-    render_main_layout_page("Fetch Data", uri.0.path(), &FetchDataTemplate {})
+async fn fetchdata(uri: OriginalUri, headers: HeaderMap) -> impl IntoResponse {
+    render_main_layout_page("Fetch Data", uri.0.path(), headers, &FetchDataTemplate {})
 }
-
 
 async fn increment(Form(form): Form<CounterTemplate>) -> impl IntoResponse {
     form.render().into_html()
@@ -141,21 +147,32 @@ async fn forecasts() -> impl IntoResponse {
 fn render_main_layout_page<'a, MA>(
     title: &'a str,
     path: &'a str,
+    headers: HeaderMap,
     main_article_html: &'a MA,
 ) -> impl IntoResponse
 where
     MA: Template,
 {
-    let main_layout = MainLayoutTemplate {
-        nav_menu_html: &NavMenuTemplate { path },
-        main_article_html,
-    };
-    LayoutTemplate {
-        title,
-        main_html: &main_layout,
+    if let Some(Ok("true")) = headers.get("HX-Boosted").map(|v| v.to_str()) {
+        BoostedLayoutTemplate {
+            title,
+            main_article_html: &MainLayoutTemplate {
+                nav_menu_html: &NavMenuTemplate { path },
+                main_article_html,
+            }
+        }.render().into_html()
+    } else {
+        let main_layout = MainLayoutTemplate {
+            nav_menu_html: &NavMenuTemplate { path },
+            main_article_html,
+        };
+        LayoutTemplate {
+            title,
+            main_html: &main_layout,
+        }
+        .render()
+        .into_html()
     }
-    .render()
-    .into_html()
 }
 
 
