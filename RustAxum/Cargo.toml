@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 askama = { version = "0.14.0", features = ["full"] }
 axum = { version = "0.8.4", features = ["form", "macros"] }
+chrono = "0.4.41"
+rand = "0.9.1"
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.45.1", features = ["full"] }
 tower-http = { version = "0.6.4", features = ["fs"] }

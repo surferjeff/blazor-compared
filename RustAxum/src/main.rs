@@ -4,6 +4,8 @@ use axum::response::{Html, IntoResponse};
 use axum::routing::{get, post};
 use axum::{Form, Router};
 use askama::Template;
+use chrono::{Duration, Local};
+use rand::Rng;
 use serde::Deserialize;
 use tower_http::services::ServeDir;
 
@@ -36,6 +38,10 @@ struct AboutTemplate { }
 struct HomeTemplate { }
 
 #[derive(Template)]
+#[template(path = "fetchdata.html")]
+struct FetchDataTemplate { }
+
+#[derive(Template)]
 #[template(path = "survey.html")]
 struct SurveyTemplate<'a> { 
     title: &'a str
@@ -46,6 +52,13 @@ struct SurveyTemplate<'a> {
 struct CounterTemplate { 
     count: u32
 }
+
+#[derive(Template)]
+#[template(path = "forecasts.html")]
+struct ForecastsTemplate { 
+    forecasts: [Forecast; 5]
+}
+
 
 impl HomeTemplate {
     pub fn survey_html<'a> (&'a self, title: &'a str) -> SurveyTemplate<'a> {
@@ -81,8 +94,48 @@ async fn counter(uri: OriginalUri) -> impl IntoResponse {
     render_main_layout_page("Counter", uri.0.path(), &CounterTemplate { count: 0 })
 }
 
+async fn fetchdata(uri: OriginalUri) -> impl IntoResponse {
+    render_main_layout_page("Fetch Data", uri.0.path(), &FetchDataTemplate {})
+}
+
+
 async fn increment(Form(form): Form<CounterTemplate>) -> impl IntoResponse {
     form.render().into_html()
+}
+
+struct Forecast {
+    date: String,
+    summary: &'static str,
+    temperature_c: i32,
+    temperature_f: i32,
+}
+
+fn make_forecasts() -> [Forecast; 5] {
+    let today = Local::now().date_naive();
+    let summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm",
+        "Balmy", "Hot", "Sweltering", "Scorching"];
+
+    let mut rng = rand::rng();
+    let mut make_forecast = |day| {
+        let c: i32 = rng.random_range(40..=90);
+        Forecast {
+            date: (today + Duration::days(day)).to_string(),
+            summary: summaries[rng.random_range(0..summaries.len())],
+            temperature_c: c,
+            temperature_f: (32.0 + (c as f32)/0.5556) as i32,
+        }
+    };
+    [
+        make_forecast(1),
+        make_forecast(2),
+        make_forecast(3),
+        make_forecast(4),
+        make_forecast(5),
+    ]
+}
+
+async fn forecasts() -> impl IntoResponse {
+    ForecastsTemplate { forecasts: make_forecasts() }.render().into_html()
 }
 
 fn render_main_layout_page<'a, MA>(
@@ -114,6 +167,8 @@ async fn main() {
         .route("/about", get(about))
         .route("/counter", get(counter))
         .route("/increment", post(increment))
+        .route("/fetchdata", get(fetchdata))
+        .route("/forecasts", post(forecasts))
         .fallback_service(ServeDir::new("static/"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();
