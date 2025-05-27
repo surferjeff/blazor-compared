@@ -1,0 +1,18 @@
+<table class="table" hx-trigger="every 2s" hx-post="/forecasts" hx-swap="outerHTML">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for forecast in forecasts %}<tr>
+            <td>{{ forecast.date }}</td>
+            <td>{{ forecast.temperature_c }}</td>
+            <td>{{ forecast.temperature_f }}</td>
+            <td>{{ forecast.summary }}</td>
+        </tr>{% endfor %}
+    </tbody>
+</table>    

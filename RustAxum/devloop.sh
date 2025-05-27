@@ -1,0 +1,1 @@
+ls Cargo.toml Makefile templates/* src/* | entr -r sh -c 'make run'

@@ -1,0 +1,15 @@
+<div class="page">
+    <div class="sidebar">
+        {{ nav_menu_html | safe }}
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="/about" hx-boost="true" hx-target="#main-layout">About</a>
+        </div>
+
+        <article class="content px-4 article" id="main-article">
+            {{ main_article_html | safe }}
+        </article>
+    </main>
+</div>
