@@ -1,9 +1,10 @@
 use axum::extract::OriginalUri;
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse};
-use axum::routing::get;
-use axum::Router;
+use axum::routing::{get, post};
+use axum::{Form, Router};
 use askama::Template;
+use serde::Deserialize;
 use tower_http::services::ServeDir;
 
 #[derive(Template)]
@@ -40,7 +41,7 @@ struct SurveyTemplate<'a> {
     title: &'a str
 }
 
-#[derive(Template)]
+#[derive(Template, Deserialize)]
 #[template(path = "counter.html")]
 struct CounterTemplate { 
     count: u32
@@ -68,7 +69,6 @@ impl IntoHtml for askama::Result<String> {
     }
 }
 
-
 async fn index(uri: OriginalUri) -> impl IntoResponse {
     render_main_layout_page("Home", uri.0.path(), &HomeTemplate {})
 }
@@ -79,6 +79,10 @@ async fn about(uri: OriginalUri) -> impl IntoResponse {
 
 async fn counter(uri: OriginalUri) -> impl IntoResponse {
     render_main_layout_page("Counter", uri.0.path(), &CounterTemplate { count: 0 })
+}
+
+async fn increment(Form(form): Form<CounterTemplate>) -> impl IntoResponse {
+    form.render().into_html()
 }
 
 fn render_main_layout_page<'a, MA>(
@@ -109,6 +113,7 @@ async fn main() {
         .route("/",  get(index))
         .route("/about", get(about))
         .route("/counter", get(counter))
+        .route("/increment", post(increment))
         .fallback_service(ServeDir::new("static/"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();

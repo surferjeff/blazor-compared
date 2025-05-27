@@ -1,4 +1,4 @@
-<form id="increment-form" hx-get="/increment" hx-swap="outerHTML">
+<form method="POST" id="increment-form" hx-post="/increment" hx-swap="outerHTML">
     <h1>Counter</h1>
     <p role="status">Current count: {{ count }}</p>
     <input type="hidden" name="count" value="{{ count + 1 }}" />
