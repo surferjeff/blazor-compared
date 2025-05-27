@@ -1,7 +1,7 @@
 gzipDotNet() {
     tar -czvf $1-src.tar.gz $(
         find $1 -name "*.cs" -o -name "*.cshtml" -o -name "*.razor" -o -name "*.fs" \
-        | grep -vE "/(obj|bin)/" )
+        | grep -vE "/(obj|bin)/"  | grep -v "Error")
 }
 
 gzipDotNet BlazorApp
