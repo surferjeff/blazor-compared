@@ -11,3 +11,4 @@ gzipDotNet GiraffeApp
 tar -czvf GoApp-src.tar.gz GoApp/*.go GoApp/templates/*
 tar -czvf GoTemplApp-src.tar.gz $(
     find GoTemplApp -name "*.go" -o -name "*.templ" | grep -v _templ.go)
+tar -czvf RustAxum-src.tar.gz RustAxum/templates/* RustAxum/src/*
