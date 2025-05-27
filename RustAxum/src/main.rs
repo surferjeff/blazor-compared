@@ -1,20 +1,10 @@
-use axum::extract::{OriginalUri, Path};
+use axum::extract::OriginalUri;
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse};
 use axum::routing::get;
 use axum::Router;
 use askama::Template;
 use tower_http::services::ServeDir;
-
-#[derive(Template)]
-#[template(path = "index.html")]
-struct HelloTemplate<'a> {
-    name: &'a str,
-}
-
-#[derive(Template)]
-#[template(path = "goodday.html")]
-struct GoodDayTemplate { }
 
 #[derive(Template)]
 #[template(path = "layout.html")]
