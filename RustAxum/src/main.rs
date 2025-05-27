@@ -50,9 +50,8 @@ struct SurveyTemplate<'a> {
     title: &'a str
 }
 
-
 impl HomeTemplate {
-    pub fn survey<'a> (&'a self, title: &'a str) -> SurveyTemplate<'a> {
+    pub fn survey_html<'a> (&'a self, title: &'a str) -> SurveyTemplate<'a> {
         SurveyTemplate { title }
     }
 }
@@ -73,32 +72,13 @@ impl IntoHtml for askama::Result<String> {
     }
 }
 
-async fn hello(Path(name): Path<String>) -> impl IntoResponse {
-    let template = HelloTemplate { name: name.as_str() };
-    template.render().into_html()
-}
 
-async fn goodday() -> impl IntoResponse {
-    let goodday = GoodDayTemplate {};
-    let template = LayoutTemplate {
-        title: "Good Day",
-        main_html: &goodday
-    };
-    template.render().into_html()
-}
-
-async fn index() -> impl IntoResponse {
-    LayoutTemplate {
-        title: "Home",
-        main_html: &MainLayoutTemplate {
-            nav_menu_html: &NavMenuTemplate { path: "/" },
-            main_article_html: &HomeTemplate {},
-        }
-    }.render().into_html()
+async fn index(uri: OriginalUri) -> impl IntoResponse {
+    render_main_layout_page("Home", uri.0.path(), &HomeTemplate {})
 }
 
 async fn about(uri: OriginalUri) -> impl IntoResponse {
-    render_main_layout_page("Home", uri.0.path(), &AboutTemplate {})
+    render_main_layout_page("About", uri.0.path(), &AboutTemplate {})
 }
 
 fn render_main_layout_page<'a, MA>(
@@ -128,8 +108,6 @@ async fn main() {
     let app = Router::new()
         .route("/",  get(index))
         .route("/about", get(about))
-        .route("/hello/{name}", get(hello))
-        .route("/goodday", get(goodday))
         .fallback_service(ServeDir::new("static/"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();
