@@ -1,4 +1,4 @@
-use axum::extract::Path;
+use axum::extract::{OriginalUri, Path};
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse};
 use axum::routing::get;
@@ -97,16 +97,28 @@ async fn index() -> impl IntoResponse {
     }.render().into_html()
 }
 
+async fn about(uri: OriginalUri) -> impl IntoResponse {
+    render_main_layout_page("Home", uri.0.path(), &AboutTemplate {})
+}
 
-
-async fn about() -> impl IntoResponse {
+fn render_main_layout_page<'a, MA>(
+    title: &'a str,
+    path: &'a str,
+    main_article_html: &'a MA,
+) -> impl IntoResponse
+where
+    MA: Template,
+{
+    let main_layout = MainLayoutTemplate {
+        nav_menu_html: &NavMenuTemplate { path },
+        main_article_html,
+    };
     LayoutTemplate {
-        title: "Home",
-        main_html: &MainLayoutTemplate {
-            nav_menu_html: &NavMenuTemplate { path: "/about" },
-            main_article_html: &AboutTemplate {},
-        }
-    }.render().into_html()
+        title,
+        main_html: &main_layout,
+    }
+    .render()
+    .into_html()
 }
 
 
