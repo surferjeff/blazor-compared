@@ -40,6 +40,12 @@ struct SurveyTemplate<'a> {
     title: &'a str
 }
 
+#[derive(Template)]
+#[template(path = "counter.html")]
+struct CounterTemplate { 
+    count: u32
+}
+
 impl HomeTemplate {
     pub fn survey_html<'a> (&'a self, title: &'a str) -> SurveyTemplate<'a> {
         SurveyTemplate { title }
@@ -71,6 +77,10 @@ async fn about(uri: OriginalUri) -> impl IntoResponse {
     render_main_layout_page("About", uri.0.path(), &AboutTemplate {})
 }
 
+async fn counter(uri: OriginalUri) -> impl IntoResponse {
+    render_main_layout_page("Counter", uri.0.path(), &CounterTemplate { count: 0 })
+}
+
 fn render_main_layout_page<'a, MA>(
     title: &'a str,
     path: &'a str,
@@ -98,6 +108,7 @@ async fn main() {
     let app = Router::new()
         .route("/",  get(index))
         .route("/about", get(about))
+        .route("/counter", get(counter))
         .fallback_service(ServeDir::new("static/"));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();
