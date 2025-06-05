@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>BlazorApp</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.3.0" />
+  </ItemGroup>
 </Project>
