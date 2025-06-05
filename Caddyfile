@@ -1,0 +1,10 @@
+:6211 {
+    reverse_proxy localhost:5211
+    encode gzip
+}
+
+
+:6126 {
+    reverse_proxy localhost:5126
+    encode gzip
+}
