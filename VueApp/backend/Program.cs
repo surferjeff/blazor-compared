@@ -1,3 +1,5 @@
+using VueBackend.Data;
+
 namespace VueBackend;
 
 public class Program
@@ -8,6 +10,7 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
+        builder.Services.AddSingleton<WeatherForecastService>();
 
         var app = builder.Build();
 
@@ -16,11 +19,7 @@ public class Program
         {
             app.UseExceptionHandler("/Home/Error");
         }
-        app.UseStaticFiles();
-
         app.UseRouting();
-
-        app.UseAuthorization();
 
         app.MapControllerRoute(
             name: "default",

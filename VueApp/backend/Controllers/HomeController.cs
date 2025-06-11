@@ -1,31 +1,28 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using VueBackend.Models;
+using VueBackend.Data;
 
 namespace VueBackend.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly WeatherForecastService _forecaster;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(WeatherForecastService forecaster)
     {
-        _logger = logger;
+        _forecaster = forecaster;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
+        var forecast = await _forecaster.GetForecastAsync(DateTime.Now);
+        return Json(forecast);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        return Content($"Error occurred. Request ID: {requestId}", "text/plain");
     }
 }
