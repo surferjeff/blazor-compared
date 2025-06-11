@@ -11,7 +11,7 @@ import NavMenu from "@/components/NavMenu.vue";
 
     <main>
       <div class="top-row px-4">
-        <a href="/about">About</a>
+        <router-link to="/about">About</router-link>
       </div>
 
       <article class="content px-4">

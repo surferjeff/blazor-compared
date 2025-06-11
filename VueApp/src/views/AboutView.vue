@@ -1,15 +1,13 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+  <p>I'm built with</p>
+  <a class="big-link" href="https://vuejs.org/">Vue</a>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+<style scoped>
+.big-link {
+    display: block;
+    font-size: x-large;
+    text-decoration: none;
+    text-align: center;
 }
 </style>
