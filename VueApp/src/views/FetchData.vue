@@ -16,10 +16,10 @@
         </thead>
         <tbody>
             <tr v-for="f in forecasts" :key="f.Date">
-                <td>{{f.Date}}</td>
-                <td>{{f.TemperatureC}}</td>
-                <td>{{f.TemperatureF}}</td>
-                <td>{{f.Summary}}</td>
+                <td>{{f.date.substr(0,10)}}</td>
+                <td>{{f.temperatureC}}</td>
+                <td>{{f.temperatureF}}</td>
+                <td>{{f.summary}}</td>
             </tr>
         </tbody>    
     </table>
@@ -29,20 +29,21 @@
 import { onMounted, ref } from 'vue';
 
 interface Forecast {
-    Date: string,
-    TemperatureC: number,
-    TemperatureF: number,
-    Summary: string,
+    date: string,
+    temperatureC: number,
+    temperatureF: number,
+    summary: string,
 }
 
 const forecasts = ref<Forecast[]>([]);
 
 async function fetchForecasts() {
-  const res = await fetch('http://localhost:5164');
+  const res = await fetch('/Api/Forecasts');
   forecasts.value = await res.json() as Forecast[];
+  window.setTimeout(fetchForecasts, 2000);
 }
 
-onMounted(fetchForecasts);
+onMounted(() => window.setTimeout(fetchForecasts, 2000));
 
 
 </script>

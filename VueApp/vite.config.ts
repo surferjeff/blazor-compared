@@ -17,5 +17,8 @@ export default defineConfig({
   },
   server: {
     port: 5188,
+    proxy: {
+      '/Api/Forecasts': 'http://localhost:5164',
+    },
   }
 })
