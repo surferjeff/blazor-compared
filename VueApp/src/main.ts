@@ -1,3 +1,5 @@
+import './assets/bootstrap/bootstrap.min.css'
+import './assets/site.css'
 import './assets/main.css'
 
 import { createApp } from 'vue'
