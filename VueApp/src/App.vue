@@ -4,9 +4,19 @@ import NavMenu from "@/components/NavMenu.vue";
 </script>
 
 <template>
-  <header>
-    <NavMenu />
-  </header>
+  <div class="page">
+    <div class="sidebar">
+      <NavMenu />
+    </div>
 
-  <RouterView />
+    <main>
+      <div class="top-row px-4">
+        <a href="/about">About</a>
+      </div>
+
+      <article class="content px-4">
+        <RouterView />
+      </article>
+    </main>
+  </div>
 </template>
