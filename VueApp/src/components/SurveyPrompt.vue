@@ -1,0 +1,20 @@
+<template>
+    <div class="alert alert-secondary mt-4">
+        <span class="oi oi-pencil me-2" aria-hidden="true"></span>
+        <strong>{{ Title }}</strong>
+
+        <span class="text-nowrap">
+            Please take our
+            <a target="_blank" class="font-weight-bold link-dark" href="https://go.microsoft.com/fwlink/?linkid=2149017">brief survey</a>
+        </span>
+        and tell us what you think.
+    </div>
+</template>
+
+<script setup lang="ts">
+import { defineProps } from "vue";
+
+defineProps<{
+    Title: string,
+}>();
+</script>
