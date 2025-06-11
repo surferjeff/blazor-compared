@@ -46,7 +46,7 @@ function ToggleNavMenu() {
 
 .top-row {
     height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .navbar-brand {
@@ -65,30 +65,30 @@ function ToggleNavMenu() {
     padding-bottom: 0.5rem;
 }
 
-    .nav-item:first-of-type {
-        padding-top: 1rem;
-    }
+.nav-item:first-of-type {
+    padding-top: 1rem;
+}
 
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
+.nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
 
-    .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-    }
+.nav-link {
+    color: #d7d7d7;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+}
 
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.25);
+.nav-item .router-link-active {
+    background-color: rgba(255, 255, 255, 0.25);
     color: white;
 }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
 }
 
