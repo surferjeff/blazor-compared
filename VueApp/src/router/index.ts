@@ -17,6 +17,12 @@ const router = createRouter({
       meta: { title: 'Counter' }
     },
     {
+      path: '/fetchdata',
+      name: 'fetchdata',
+      component: () => import('../views/FetchData.vue'),
+      meta: { title: 'Weather forecast' }
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
