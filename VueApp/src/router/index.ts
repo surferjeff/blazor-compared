@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import CounterView from "../views/CounterView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,12 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: { title: 'Index' }
+    },
+    {
+      path: '/counter',
+      name: 'counter',
+      component: CounterView,
+      meta: { title: 'Counter' }
     },
     {
       path: '/about',
