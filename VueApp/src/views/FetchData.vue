@@ -38,9 +38,12 @@ interface Forecast {
 const forecasts = ref<Forecast[]>([]);
 
 async function fetchForecasts() {
-  const res = await fetch('/Api/Forecasts');
-  forecasts.value = await res.json() as Forecast[];
-  window.setTimeout(fetchForecasts, 2000);
+  try {
+    const res = await fetch('/Api/Forecasts');
+    forecasts.value = await res.json() as Forecast[];
+  } finally {
+      window.setTimeout(fetchForecasts, 2000);
+  }
 }
 
 onMounted(() => window.setTimeout(fetchForecasts, 2000));
