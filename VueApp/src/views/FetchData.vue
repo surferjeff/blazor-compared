@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="f in forecasts" :key="f.Date">
+            <tr v-for="f in forecasts" :key="f.date">
                 <td>{{f.date.substr(0,10)}}</td>
                 <td>{{f.temperatureC}}</td>
                 <td>{{f.temperatureF}}</td>
