@@ -1,9 +1,8 @@
-@page
+@model MVCApp.Data.WeatherForecast[];
+
 @{
     Layout = "_NoLayout";
 }
-@using BlazorApp.Data
-@inject WeatherForecastService ForecastService
 
 <table class="table">
     <thead>
@@ -15,7 +14,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var forecast in await ForecastService.GetForecastAsync(DateTime.Now))
+        @foreach (var forecast in @Model)
         {
             <tr>
                 <td>@forecast.Date.ToShortDateString()</td>

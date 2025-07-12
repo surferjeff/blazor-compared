@@ -1,4 +1,4 @@
-namespace BlazorApp.Data;
+namespace MVCApp.Data;
 
 public class WeatherForecastService
 {
