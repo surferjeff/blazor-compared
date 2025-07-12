@@ -11,7 +11,7 @@
 <body>
     <div class="page">
         <div class="sidebar" id=sidebar>
-            @await Component.InvokeAsync(typeof(ViewComponents.NavMenu))
+            <partial name="_NavMenu" />
         </div>
 
         <main>
@@ -24,7 +24,5 @@
             </article>
         </main>
     </div>
-    
-    <script src="~/htmx1.9.6.min.js"></script>
 </body>
 </html>
