@@ -7,6 +7,19 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
-<p hx-trigger="every 2s" hx-get="/forecasts" hx-swap="outerHTML">
+<div id="tableHere">
     <em>Loading...</em>
-</p>
+</div>
+
+<script>
+    async function fetchForecasts() {
+        const response = await fetch("/Forecasts");
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        const html = await response.text();
+        document.getElementById("tableHere").innerHTML = html;
+    }
+    fetchForecasts();
+</script>
+
