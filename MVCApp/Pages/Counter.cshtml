@@ -1,9 +1,15 @@
 @page
-@model CounterModel
-@{
-    ViewData["Title"] = "Counter";
-}
 
-@await Component.InvokeAsync(typeof(ViewComponents.CounterComponent), new {
-    model = Model
-})
+<h1>Counter</h1>
+
+<p role="status">Current count: <span id="countSpan">0</span></p>
+
+<button class="btn btn-primary" onclick="onClick()">Click me</button>
+
+<script>
+    let count = 0;
+    function onClick() {
+        count += 1;
+        document.getElementById("countSpan").innerText = count;
+    }
+</script>

@@ -1,9 +1,0 @@
-@page
-@model CounterModel
-@{
-    Layout = "_LayoutBodyOnly";
-}
-
-@await Component.InvokeAsync(typeof(ViewComponents.CounterComponent), new {
-    model = Model
-})
