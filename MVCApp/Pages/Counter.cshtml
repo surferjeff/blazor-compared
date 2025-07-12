@@ -1,0 +1,9 @@
+@page
+@model CounterModel
+@{
+    ViewData["Title"] = "Counter";
+}
+
+@await Component.InvokeAsync(typeof(ViewComponents.CounterComponent), new {
+    model = Model
+})

@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BlazorApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="page">
+        <div class="sidebar" id=sidebar>
+            @await Component.InvokeAsync(typeof(ViewComponents.NavMenu))
+        </div>
+
+        <main>
+            <div class="top-row px-4">
+                <a href="/About">About</a>
+            </div>
+
+            <article class="content px-4" id="main-article">
+                @RenderBody()
+            </article>
+        </main>
+    </div>
+    
+    <script src="~/htmx1.9.6.min.js"></script>
+</body>
+</html>
