@@ -1,16 +1,12 @@
 using BlazorApp.Data;
-using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddControllersWithViews();
 
-builder.Services.AddResponseCompression(options =>
-{
-    options.Providers.Add<GzipCompressionProvider>();
-});
+// Add services to the container.
+builder.Services.AddSingleton<WeatherForecastService>();
 
 if ((Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "")
     .ToLower() != "development")
@@ -23,19 +19,20 @@ if ((Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "")
 
 var app = builder.Build();
 
-app.UseResponseCompression();
-
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
+if (app.Environment.IsDevelopment()) {
+    app.UseDeveloperExceptionPage();
+} else {
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
-
-app.MapRazorPages();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
