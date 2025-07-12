@@ -7,5 +7,4 @@
 
 Welcome to your new app.
 
-@await Component.InvokeAsync(typeof(ViewComponents.SurveyPrompt), new {
-    title = "How is Blazor working for you?"})
+<partial name="_SurveyPrompt" model='"How is Blazor working for you?"' />

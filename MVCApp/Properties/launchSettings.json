@@ -11,7 +11,7 @@
     "MVCApp": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5155",
+      "applicationUrl": "http://localhost:5156",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
