@@ -4,6 +4,9 @@ namespace MVCApp.Controllers;
 
 [Route("/")]
 public class HomeController : Controller {
-    [HttpGet("/")]
+    [HttpGet("")]
     public IActionResult Index() => View();
+
+    [HttpGet("About")]
+    public IActionResult About() => View();
 }
