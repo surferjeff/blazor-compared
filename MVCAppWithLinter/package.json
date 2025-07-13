@@ -1,0 +1,14 @@
+{
+  "name": "mvcappjs",
+  "version": "1.0.0",
+  "description": "Javascript supporting MVC App",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint wwwroot/js",
+    "lint:fix": "eslint wwwroot/js --fix"    
+  },
+  "devDependencies": {
+    "eslint": "^9.31.0",
+    "eslint-plugin-jsdoc": "^51.3.4"
+  }
+}
