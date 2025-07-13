@@ -34,15 +34,8 @@ module.exports = defineConfig([{
     },
 
     rules: {
-        "indent": ["error", 2, {
+        "indent": ["error", 4, {
             "SwitchCase": 1,
-        }],
-
-        "linebreak-style": ["error", "unix"],
-
-        "quotes": ["error", "single", {
-            "avoidEscape": true,
-            "allowTemplateLiterals": true,
         }],
 
         "semi": ["error", "always"],
@@ -104,7 +97,7 @@ module.exports = defineConfig([{
     settings: {
         jsdoc: {
             tagNamePreference: {
-                returns: "return",
+                returns: "returns",
             },
         },
     },

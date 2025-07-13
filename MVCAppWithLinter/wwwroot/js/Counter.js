@@ -1,4 +1,10 @@
 let count = 0;
-function onClick() {
+
+/**
+ * Increments the value displayed in <span id="countSpan">
+ */
+export function onClick() {
     document.getElementById("countSpan").innerText = ++count;
 }
+
+document.getElementById("countBtn").onclick = onClick;
