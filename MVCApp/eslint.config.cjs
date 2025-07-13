@@ -110,14 +110,14 @@ function commonConfig() {
 function htmlConfig() {
     const config = commonConfig();
     config.languageOptions.parser = htmlParser;
-    config.plugins.html = htmlPlugin;
+    config.plugins["@html-eslint"] = htmlPlugin;
     return config;
 }
 
 module.exports = defineConfig([{
-    files: ["wwwroot/js/**/*.js"],
     ...commonConfig(),
+    files: ["wwwroot/js/**/*.js"],
 }, {
+    ...htmlPlugin.configs["flat/recommended"],
     files: ["Views/**/*.cshtml"],
-    ...htmlConfig()
 }]);
