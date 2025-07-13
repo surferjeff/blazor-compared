@@ -20,7 +20,6 @@ const compat = new FlatCompat({
 
 function commonConfig() {
     return {
-        files: ["wwwroot/js/**/*.js"],
         languageOptions: {
             ecmaVersion: 2020,
             sourceType: "module",
@@ -108,7 +107,17 @@ function commonConfig() {
     };
 }
 
+function htmlConfig() {
+    const config = commonConfig();
+    config.languageOptions.parser = htmlParser;
+    config.plugins.html = htmlPlugin;
+    return config;
+}
+
 module.exports = defineConfig([{
     files: ["wwwroot/js/**/*.js"],
     ...commonConfig(),
+}, {
+    files: ["Views/**/*.cshtml"],
+    ...htmlConfig()
 }]);

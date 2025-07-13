@@ -4,8 +4,8 @@
   "description": "Javascript supporting MVC App",
   "type": "module",
   "scripts": {
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint": "eslint wwwroot Views",
+    "lint:fix": "eslint wwwroot Views --fix"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
