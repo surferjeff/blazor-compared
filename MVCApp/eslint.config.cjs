@@ -5,8 +5,7 @@ const {
 const globals = require("globals");
 const jsdoc = require("eslint-plugin-jsdoc");
 const js = require("@eslint/js");
-const htmlParser = require("@html-eslint/parser");
-const htmlPlugin = require("@html-eslint/eslint-plugin");
+const pluginHtml = require("eslint-plugin-html");
 
 const {
     FlatCompat,
@@ -109,8 +108,8 @@ function commonConfig() {
 
 function htmlConfig() {
     const config = commonConfig();
-    config.languageOptions.parser = htmlParser;
-    config.plugins["@html-eslint"] = htmlPlugin;
+    config.plugins.html = pluginHtml;
+    config.settings["html/html-extensions"] = [".cshtml"];
     return config;
 }
 
@@ -118,6 +117,6 @@ module.exports = defineConfig([{
     ...commonConfig(),
     files: ["wwwroot/js/**/*.js"],
 }, {
-    ...htmlPlugin.configs["flat/recommended"],
+    ...htmlConfig(),
     files: ["Views/**/*.cshtml"],
 }]);
