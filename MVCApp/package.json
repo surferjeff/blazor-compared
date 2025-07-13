@@ -4,12 +4,14 @@
   "description": "Javascript supporting MVC App",
   "type": "module",
   "scripts": {
-    "lint": "eslint wwwroot/js",
-    "lint:fix": "eslint wwwroot/js --fix"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.31.0",
+    "@html-eslint/eslint-plugin": "^0.42.0",
+    "@html-eslint/parser": "^0.42.0",
     "eslint": "^9.31.0",
     "eslint-plugin-jsdoc": "^51.3.4",
     "globals": "^16.3.0"

@@ -5,6 +5,8 @@ const {
 const globals = require("globals");
 const jsdoc = require("eslint-plugin-jsdoc");
 const js = require("@eslint/js");
+const htmlParser = require("@html-eslint/parser");
+const htmlPlugin = require("@html-eslint/eslint-plugin");
 
 const {
     FlatCompat,
@@ -17,6 +19,7 @@ const compat = new FlatCompat({
 });
 
 module.exports = defineConfig([{
+    files: ["wwwroot/js/**/*.js"],
     languageOptions: {
         ecmaVersion: 2020,
         sourceType: "module",
