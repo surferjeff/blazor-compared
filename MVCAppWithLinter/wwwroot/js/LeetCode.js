@@ -25,5 +25,5 @@ function getDecimalValue(head) {
 export function test() {
     /** type: { ListNode } */
     let list = { val: 1, next: { val: 0, next: { val: 'a' } } };
-    console.log(getDecimalValue(list));
+    getDecimalValue(list);
 }

@@ -1,0 +1,11 @@
+{
+    "files": [
+        "wwwroot/js/LeetCode.js"
+    ],
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "strict": true
+    },
+    "include": ["wwwroot/js/**/*.js"]
+}

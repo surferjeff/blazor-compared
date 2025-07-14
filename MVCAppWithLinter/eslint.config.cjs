@@ -5,6 +5,7 @@ const {
 const globals = require("globals");
 const jsdoc = require("eslint-plugin-jsdoc");
 const js = require("@eslint/js");
+const tslint = require("typescript-eslint");
 
 const {
     FlatCompat,
@@ -16,7 +17,15 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-module.exports = defineConfig([{
+module.exports = defineConfig([ tslint.configs.recommendedTypeChecked,
+{
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+}, {
     languageOptions: {
         ecmaVersion: 2020,
         sourceType: "module",
