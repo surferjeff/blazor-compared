@@ -1,5 +1,7 @@
+import { gebi } from "./core.js";
+
 let count = 0;
 function onClick() {
-    document.getElementById("countSpan").innerText = String(++count);
+    gebi("countSpan").innerText = String(++count);
 }
-document.getElementById("countBtn").onclick = onClick;
+gebi("countBtn").onclick = onClick;

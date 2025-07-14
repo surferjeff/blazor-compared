@@ -1,1 +1,0 @@
-{"version":3,"file":"Counter.js","sourceRoot":"","sources":["../../scripts/Counter.ts"],"names":[],"mappings":"AAAA,IAAI,KAAK,GAAG,CAAC,CAAC;AACd,SAAS,OAAO;IACZ,QAAQ,CAAC,cAAc,CAAC,WAAW,CAAC,CAAC,SAAS,GAAG,MAAM,CAAC,EAAE,KAAK,CAAC,CAAC;AACrE,CAAC;AACD,QAAQ,CAAC,cAAc,CAAC,UAAU,CAAC,CAAC,OAAO,GAAG,OAAO,CAAC"}

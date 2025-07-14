@@ -1,8 +1,7 @@
-const response = await fetch("/Forecasts");
-if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`);
-}
+import { fetchOrThrow, gebi } from "./core.js";
+
+const response = await fetchOrThrow("/Forecasts");
 const html = await response.text();
-document.getElementById("tableHere").innerHTML = html;
+gebi("tableHere").innerHTML = html;
 
 export {}  // Declare a module so we can use top-level await above.
