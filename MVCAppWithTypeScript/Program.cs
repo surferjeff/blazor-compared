@@ -18,6 +18,10 @@ if ((Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "")
     }
 }
 
+builder.Services.AddSpaStaticFiles(options => {
+    options.RootPath = "js";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,5 +39,14 @@ app.UseRouting();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+if (app.Environment.IsDevelopment()) {
+    app.UseSpa(spa =>
+    {
+        spa.Options.SourcePath = ".";
+        spa.Options.DevServerPort = 5173;
+        spa.UseReactDevelopmentServer(npmScript: "start");
+    });
+}    
 
 app.Run();
