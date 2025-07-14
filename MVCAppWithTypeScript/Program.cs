@@ -38,32 +38,33 @@ else
 
 app.UseRouting();
 
-if (app.Environment.IsDevelopment()) {
-    // There's no way to call app.UseStaticFiles() and then have the proxy
+if (app.Environment.IsDevelopment())
+{
+    app.MapReverseProxy();
+
+    // There's no way to call app.UseStaticFiles() and then have vite's proxy
     // take priority over paths that could be served by both.
     // Therefore, we have to implement a light-weight UseStaticFiles() here.
-    #pragma warning disable ASP0014 // Suggest using top level route registrations
-    app.UseEndpoints(endpoints =>
+    app.Use(async (context, next) =>
     {
-        endpoints.MapReverseProxy();
+        Console.WriteLine(context.Request.Path);
 
-        endpoints.MapFallback(async context =>
+        var env = app.Services.GetRequiredService<IWebHostEnvironment>();
+        var fileProvider = env.WebRootFileProvider;
+        var fileInfo = fileProvider.GetFileInfo(context.Request.Path);
+
+        if (fileInfo.Exists)
         {
-            var env = app.Services.GetRequiredService<IWebHostEnvironment>();
-            var fileProvider = env.WebRootFileProvider;
-            var fileInfo = fileProvider.GetFileInfo(context.Request.Path);
-
-            if (fileInfo.Exists)
-            {
-                await context.Response.SendFileAsync(fileInfo);
-            }
-            else
-            {
-                context.Response.StatusCode = 404;
-            }
-        });
+            await context.Response.SendFileAsync(fileInfo);
+        }
+        else
+        {
+            await next();
+        }
     });
-} else {
+}
+else
+{
     app.UseStaticFiles();
 }
 
