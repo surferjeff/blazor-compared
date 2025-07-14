@@ -1,4 +1,5 @@
 using MVCApp.Data;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,5 +35,14 @@ app.UseRouting();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+if (app.Environment.IsDevelopment()) {
+    app.UseSpa(spa =>
+    {
+        spa.Options.SourcePath = "BrowserScripts";
+        spa.Options.DevServerPort = 5173;
+        spa.UseReactDevelopmentServer(npmScript: "start");
+    });
+}    
 
 app.Run();
