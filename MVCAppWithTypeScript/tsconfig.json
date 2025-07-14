@@ -5,8 +5,9 @@
         "noEmitOnError": true,
         "removeComments": false,
         "sourceMap": true,
-        "target": "ES6",
-        "outDir": "wwwroot/js"
+        "target": "ES2022",
+        "outDir": "wwwroot/js",
+        "module": "ES2022"
     },
     "include": [
         "scripts/**/*"
