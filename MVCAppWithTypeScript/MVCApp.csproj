@@ -12,9 +12,4 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8" />
   </ItemGroup>
 
-
-  <Target Name="CustomAfterBuild" AfterTargets="Compile">
-    <Message Text="After Compile" Importance="high" />
-  </Target>
-
 </Project>
