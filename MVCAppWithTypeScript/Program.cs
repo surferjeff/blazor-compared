@@ -18,6 +18,10 @@ if ((Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "")
     }
 }
 
+builder.Services.AddSpaStaticFiles(options => {
+    options.RootPath = "dist";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
