@@ -5,4 +5,4 @@ if (!response.ok) {
 const html = await response.text();
 document.getElementById("tableHere").innerHTML = html;
 
-export {}
+export {}  // Declare a module so we can use top-level await above.
