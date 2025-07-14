@@ -43,7 +43,7 @@ app.MapControllerRoute(
 if (app.Environment.IsDevelopment()) {
     app.UseSpa(spa =>
     {
-        spa.Options.SourcePath = ".";
+        spa.Options.SourcePath = "scripts";
         spa.Options.DevServerPort = 5173;
         spa.UseReactDevelopmentServer(npmScript: "start");
     });

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "pwd && echo Starting the development server && vite --host ::",
+    "start": "echo Starting the development server && vite --host ::",
     "dev": "vite",
     "build": "vite build --emptyOutDir"
   },
