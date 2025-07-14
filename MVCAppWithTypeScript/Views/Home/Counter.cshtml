@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Counter";
+}
+
+<h1>Counter</h1>
+
+<p role="status">Current count: <span id="countSpan">0</span></p>
+
+<button id="countBtn" class="btn btn-primary">Click me</button>
+
+<script type="module">
+    let count = 0;
+    function onClick() {
+        document.getElementById("countSpan").innerText = ++count;
+    }
+    document.getElementById("countBtn").onclick = onClick;
+</script>
