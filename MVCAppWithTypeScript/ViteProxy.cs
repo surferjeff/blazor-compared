@@ -116,7 +116,6 @@ public class ViteProxy
             var testPath = Path.Join(path, "npm.cmd");
             if (Path.Exists(testPath))
             {
-                Console.WriteLine(testPath);
                 npmCmd = testPath;
                 break;
             }
@@ -151,7 +150,7 @@ public class ViteProxy
                     error.ToString());
                 return false;
             }
-            logger.LogInformation("Found npm version {}.", output.ToString());
+            logger.LogInformation("Found npm version {}.", output.ToString().Trim());
         }
 
         // Confirm vite has been installed into node_modules.
@@ -183,51 +182,51 @@ public class ViteProxy
         {
             process.StartInfo = new ProcessStartInfo(npmCmd, ["run", "start"])
             {
-                UseShellExecute = true,
-                // RedirectStandardOutput = true,
-                // RedirectStandardError = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
                 CreateNoWindow = true,
                 WorkingDirectory = Path.Join(scriptsDirectory),
             };
 
             StringBuilder output = new StringBuilder();
-            StringBuilder error = new StringBuilder();
-            var started = true;
+            var started = false;
             var exited = false;
 
-            // process.OutputDataReceived += (sender, args) =>
-            // {
-            //     if (!started)
-            //     {
-            //         output.AppendLine(args.Data);
-            //         if (output.ToString().Contains("Starting the development server"))
-            //         {
-            //             started = true;
-            //         }
-            //     }
-            // };
-            // process.ErrorDataReceived += (sender, args) => error.AppendLine(args.Data);
+            process.OutputDataReceived += (sender, args) =>
+            {
+                if (!started)
+                {
+                    output.AppendLine(args.Data);
+                    if (output.ToString().Contains("Starting the development server"))
+                    {
+                        started = true;
+                    }
+                }
+                logger.LogInformation("{}", args.Data);
+            };
+            process.ErrorDataReceived += (sender, args) =>
+            {
+                logger.LogWarning(args.Data);
+
+            };
             process.Exited += (sender, args) =>
             {
-                Console.WriteLine("Process exited. {}", error.ToString());
+                logger.LogWarning("Process exited.");
                 exited = true;
             };
 
             process.Start();
-            #if WINDOWS
-            job.AssignProcess(process);
-            #endif
-            // process.BeginOutputReadLine();
-            // process.BeginErrorReadLine();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
 
             do
             {
                 Thread.Sleep(50);
                 if (exited)
                 {
-                    logger.LogWarning("Hot reloading TypeScript files is DISABLED because npm exited unexpectedly. {}",
-                        error.ToString());
-
+                    logger.LogWarning("Hot reloading TypeScript files is DISABLED because npm exited unexpectedly.");
+                    return false;
                 }
             } while (!started);
             logger.LogInformation("Hot reloading TypeScript files is enabled.  Process {}", process.Id);
