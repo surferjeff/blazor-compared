@@ -112,16 +112,7 @@ public class ViteProxy
         var currentDirectory = Path.GetDirectoryName(currentFilePath);
         var scriptsDirectory = Path.Join(currentDirectory, "scripts");
 
-        var npmCmd = "";
-        foreach (var path in Environment.GetEnvironmentVariable("PATH")!.Split(";"))
-        {
-            var testPath = Path.Join(path, "npm.cmd");
-            if (Path.Exists(testPath))
-            {
-                npmCmd = testPath;
-                break;
-            }
-        }
+        var npmCmd = FindNpm();
 
         // Confirm npm is installed.
         using (Process process = new Process())
@@ -147,9 +138,9 @@ public class ViteProxy
             process.WaitForExit();
             if (process.ExitCode != 0)
             {
-                throw new ViteProxyError($"npm isn't installed or maybe it's just not working.\n{error}"); ;
+                throw new ViteProxyError($"npm isn't working.\n{error}"); ;
             }
-            logger.LogInformation("Found npm version {}.", output.ToString().Trim());
+            logger.LogInformation("Using {} version {}.", npmCmd, output.ToString().Trim());
         }
 
         // Confirm vite has been installed into node_modules.
@@ -225,6 +216,25 @@ public class ViteProxy
                 return false;   
             }
         }
+    }
+
+    public static string FindNpm() {
+        #if WINDOWS
+        var splitter = ";";
+        var npm = "npm.cmd";
+        #else
+        var splitter = ":";
+        var npm = "npm";
+        #endif
+        foreach (var path in Environment.GetEnvironmentVariable("PATH")!.Split(splitter))
+        {
+            var testPath = Path.Join(path, npm);
+            if (Path.Exists(testPath))
+            {
+                return testPath;
+            }
+        }
+        throw new ViteProxyError($"Failed to find {npm} in PATH.");
     }
 }
 
