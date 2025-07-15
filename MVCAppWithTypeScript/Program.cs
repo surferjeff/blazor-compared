@@ -48,6 +48,7 @@ if (app.Environment.IsDevelopment()) {
         ViteProxy.LaunchVite(viteLogger, proxyConfig);
         app.MapReverseProxy();
         staticFileOptions.FileProvider = new KnockoutTs(app.Environment.WebRootFileProvider);
+        viteLogger.LogInformation("Hot reloading Typescript is enabled.");
     }
     catch (Exception e)
     {

@@ -189,7 +189,7 @@ public class ViteProxy
             return null;
         }
         var sections = new List<string>();
-        foreach (var kv in config.AsEnumerable())
+        foreach (var kv in config.GetChildren())
         {
             if ("Address" == kv.Key && null != kv.Value)
             {
