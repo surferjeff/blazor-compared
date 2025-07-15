@@ -11,6 +11,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System.Runtime.CompilerServices;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 /// <summary>
 /// Doesn't serve /ts/** from the file system because we want to proxy those
@@ -219,13 +220,12 @@ public class ViteProxy
     }
 
     public static string FindNpm() {
-        #if WINDOWS
-        var splitter = ";";
-        var npm = "npm.cmd";
-        #else
         var splitter = ":";
         var npm = "npm";
-        #endif
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+            splitter = ";";
+            npm = "npm.cmd";
+        }
         foreach (var path in Environment.GetEnvironmentVariable("PATH")!.Split(splitter))
         {
             var testPath = Path.Join(path, npm);
