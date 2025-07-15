@@ -6,7 +6,7 @@
         "removeComments": false,
         "sourceMap": true,
         "target": "ES2022",
-        "outDir": "wwwroot/js",
+        "outDir": "wwwroot/ts",
         "module": "ES2022"
     },
     "include": [
