@@ -10,6 +10,9 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System.Runtime.CompilerServices;
+#if WINDOWS
+using Meziantou.Framework.Win32;
+#endif
 
 /// <summary>
 /// Doesn't serve /ts/** from the file system because we want to proxy those
@@ -107,10 +110,23 @@ public class ViteProxy
         var currentDirectory = Path.GetDirectoryName(currentFilePath);
         var scriptsDirectory = Path.Join(currentDirectory, "scripts");
 
+        var npmCmd = "";
+        foreach (var path in Environment.GetEnvironmentVariable("PATH")!.Split(";"))
+        {
+            var testPath = Path.Join(path, "npm.cmd");
+            if (Path.Exists(testPath))
+            {
+                Console.WriteLine(testPath);
+                npmCmd = testPath;
+                break;
+            }
+        }
+
+
         // Confirm npm is installed.
         using (Process process = new Process())
         {
-            process.StartInfo = new ProcessStartInfo("npm.cmd", ["-v"])
+            process.StartInfo = new ProcessStartInfo(npmCmd, ["-v"])
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -150,40 +166,59 @@ public class ViteProxy
             return false;
         }
 
+        #if WINDOWS
+        // Create the Job object and assign it to the current process
+        using var job = new JobObject();
+        job.SetLimits(new JobObjectLimits()
+        {
+            Flags = JobObjectLimitFlags.DieOnUnhandledException |
+                    JobObjectLimitFlags.KillOnJobClose,
+        });
+
+        job.AssignProcess(Process.GetCurrentProcess());
+        #endif
+
         // Finally, launch vite.
         using (Process process = new Process())
         {
-            process.StartInfo = new ProcessStartInfo("npm.cmd", ["run", "start"])
+            process.StartInfo = new ProcessStartInfo(npmCmd, ["run", "start"])
             {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                UseShellExecute = true,
+                // RedirectStandardOutput = true,
+                // RedirectStandardError = true,
                 CreateNoWindow = true,
-                WorkingDirectory = Path.Join(currentDirectory, "scripts")
+                WorkingDirectory = Path.Join(scriptsDirectory),
             };
 
             StringBuilder output = new StringBuilder();
             StringBuilder error = new StringBuilder();
-            var started = false;
+            var started = true;
             var exited = false;
 
-            process.OutputDataReceived += (sender, args) =>
+            // process.OutputDataReceived += (sender, args) =>
+            // {
+            //     if (!started)
+            //     {
+            //         output.AppendLine(args.Data);
+            //         if (output.ToString().Contains("Starting the development server"))
+            //         {
+            //             started = true;
+            //         }
+            //     }
+            // };
+            // process.ErrorDataReceived += (sender, args) => error.AppendLine(args.Data);
+            process.Exited += (sender, args) =>
             {
-                if (!started)
-                {
-                    output.AppendLine(args.Data);
-                    if (output.ToString().Contains("Starting the development server"))
-                    {
-                        started = true;
-                    }
-                }
+                Console.WriteLine("Process exited. {}", error.ToString());
+                exited = true;
             };
-            process.ErrorDataReceived += (sender, args) => error.AppendLine(args.Data);
-            process.Exited += (sender, args) => exited = true;
 
             process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            #if WINDOWS
+            job.AssignProcess(process);
+            #endif
+            // process.BeginOutputReadLine();
+            // process.BeginErrorReadLine();
 
             do
             {
@@ -195,7 +230,7 @@ public class ViteProxy
 
                 }
             } while (!started);
-            logger.LogInformation("Hot reloading TypeScript files is enabled.");
+            logger.LogInformation("Hot reloading TypeScript files is enabled.  Process {}", process.Id);
             return true;
         }
     }
