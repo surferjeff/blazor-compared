@@ -40,7 +40,7 @@ app.UseRouting();
 
 if (app.Environment.IsDevelopment())
 {
-    // Serve /js files from the vite proxy, not from /wwwroot.
+    // Serve /ts files from the vite proxy, not from /wwwroot.
     var options = new StaticFileOptions
     {
         FileProvider = new KnockoutTs(app.Environment.WebRootFileProvider)

@@ -10,7 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
 /// <summary>
-/// Doesn't serve /js/** from the file system because we want to proxy those
+/// Doesn't serve /ts/** from the file system because we want to proxy those
 /// requests to vite.
 /// </summary>
 internal class KnockoutTs : IFileProvider
