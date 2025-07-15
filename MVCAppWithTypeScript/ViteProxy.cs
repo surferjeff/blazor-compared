@@ -115,7 +115,7 @@ public class ViteProxy
 
         var npmCmd = FindNpm();
 
-        // Confirm npm is installed.
+        // Confirm npm is working.
         using (Process process = new Process())
         {
             process.StartInfo = new ProcessStartInfo(npmCmd, ["-v"])
