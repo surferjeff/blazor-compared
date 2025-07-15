@@ -1,19 +1,21 @@
 // Stuff needed to serve /ts from the Vite proxy.
 //
 // DotNet builds and serves typescript just fine, but it doesn't do hot
-// reloading.  That makes editing JavaScript quite painful.
+// reloading.  That makes editing TypeScript quite painful.
 //
-// This code runs the vite proxy for javascript files generated from our
-// typescript so that hot reloading works.
+// This code runs the vite proxy for TypeScript files so that hot reloading works.
 
+using System.Diagnostics;
+using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Doesn't serve /ts/** from the file system because we want to proxy those
 /// requests to vite.
 /// </summary>
-internal class KnockoutTs : IFileProvider
+public class KnockoutTs : IFileProvider
 {
     IFileProvider inner;
 
@@ -69,3 +71,129 @@ public class KnockoutTsContents : IDirectoryContents
         return infos.GetEnumerator();
     }
 }
+
+public class ViteProxy
+{
+    private readonly ILogger<ViteProxy> logger;
+
+    public ViteProxy(ILogger<ViteProxy> logger)
+    {
+        this.logger = logger;
+    }
+
+    // This method will automatically receive the file path of where it's called from
+    private static string? GetThisFilePath([CallerFilePath] string? path = null)
+    {
+        return path;
+    }
+
+    public static bool LaunchVite(ILogger<ViteProxy> logger)
+    {
+        try
+        {
+            var self = new ViteProxy(logger);
+            return self.Launch();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning("Hot reloading TypeScript files is DISABLED because\n{}", e.Message);
+            return false;
+        }
+    }    
+
+    bool Launch()
+    {
+        // Confirm npm is installed.
+        using (Process process = new Process())
+        {
+            process.StartInfo = new ProcessStartInfo("npm", ["-v"])
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
+
+            process.OutputDataReceived += (sender, args) => output.AppendLine(args.Data);
+            process.ErrorDataReceived += (sender, args) => error.AppendLine(args.Data);
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+            {
+                logger.LogWarning("Hot reloading TypeScript files is DISABLED because npm isn't installed or maybe it's just not working. {}",
+                    error.ToString());
+                return false;
+            }
+            logger.LogInformation("Found npm version {}.", output.ToString());
+        }
+
+        // Confirm vite has been installed into node_modules.
+        var currentFilePath = GetThisFilePath();
+        var currentDirectory = Path.GetDirectoryName(currentFilePath);
+        var nodeModulesDirectory = Path.Join(currentDirectory, "scripts", "node_modules");
+        if (!Directory.Exists(nodeModulesDirectory))
+        {
+            logger.LogWarning(
+                "Hot reloading TypeScript files is DISABLED because vite hasn't been installed in {}.\n" +
+                "Run the command 'npm ci --ignore-scripts --no-audit' in the /scripts directory to install vite.",
+                nodeModulesDirectory
+            );
+            return false;
+        }
+
+        // Finally, launch vite.
+        using (Process process = new Process())
+        {
+            process.StartInfo = new ProcessStartInfo("npm", ["run", "start"])
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
+            var started = false;
+            var exited = false;
+
+            process.OutputDataReceived += (sender, args) =>
+            {
+                if (!started)
+                {
+                    output.AppendLine(args.Data);
+                    if (output.ToString().Contains("Starting the development server"))
+                    {
+                        started = true;
+                    }
+                }
+            };
+            process.ErrorDataReceived += (sender, args) => error.AppendLine(args.Data);
+            process.Exited += (sender, args) => exited = true;
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            do
+            {
+                Thread.Sleep(50);
+                if (exited)
+                {
+                    logger.LogWarning("Hot reloading TypeScript files is DISABLED because npm exited unexpectedly. {}",
+                        error.ToString());
+
+                }
+            } while (!started);
+            logger.LogInformation("Hot reloading TypeScript files is enabled.");
+            return true;
+        }
+    }
+}    
+ 

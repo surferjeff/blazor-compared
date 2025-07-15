@@ -38,9 +38,9 @@ else
 
 app.UseRouting();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() && ViteProxy.LaunchVite(app.Services.GetService<ILogger<ViteProxy>>()!))
 {
-    // Serve /ts files from the vite proxy, not from /wwwroot.
+    // Serve /ts files from the vite proxy, not static files from /wwwroot.
     var options = new StaticFileOptions
     {
         FileProvider = new KnockoutTs(app.Environment.WebRootFileProvider)
