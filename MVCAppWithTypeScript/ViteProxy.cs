@@ -103,15 +103,20 @@ public class ViteProxy
 
     bool Launch()
     {
+        var currentFilePath = GetThisFilePath();
+        var currentDirectory = Path.GetDirectoryName(currentFilePath);
+        var scriptsDirectory = Path.Join(currentDirectory, "scripts");
+
         // Confirm npm is installed.
         using (Process process = new Process())
         {
-            process.StartInfo = new ProcessStartInfo("npm", ["-v"])
+            process.StartInfo = new ProcessStartInfo("npm.cmd", ["-v"])
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = scriptsDirectory
             };
 
             StringBuilder output = new StringBuilder();
@@ -134,9 +139,7 @@ public class ViteProxy
         }
 
         // Confirm vite has been installed into node_modules.
-        var currentFilePath = GetThisFilePath();
-        var currentDirectory = Path.GetDirectoryName(currentFilePath);
-        var nodeModulesDirectory = Path.Join(currentDirectory, "scripts", "node_modules");
+        var nodeModulesDirectory = Path.Join(scriptsDirectory, "node_modules");
         if (!Directory.Exists(nodeModulesDirectory))
         {
             logger.LogWarning(
@@ -150,12 +153,13 @@ public class ViteProxy
         // Finally, launch vite.
         using (Process process = new Process())
         {
-            process.StartInfo = new ProcessStartInfo("npm", ["run", "start"])
+            process.StartInfo = new ProcessStartInfo("npm.cmd", ["run", "start"])
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WorkingDirectory = Path.Join(currentDirectory, "scripts")
             };
 
             StringBuilder output = new StringBuilder();
