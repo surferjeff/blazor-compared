@@ -40,27 +40,30 @@ app.UseRouting();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapReverseProxy();
-
-    // There's no way to call app.UseStaticFiles() and then have vite's proxy
-    // take priority over paths that could be served by both.
-    // Therefore, we have to implement a light-weight UseStaticFiles() here.
-    app.Use(async (context, next) =>
+    app.MapReverseProxy(pipeline =>
     {
-        Console.WriteLine(context.Request.Path);
-
-        var env = app.Services.GetRequiredService<IWebHostEnvironment>();
-        var fileProvider = env.WebRootFileProvider;
-        var fileInfo = fileProvider.GetFileInfo(context.Request.Path);
-
-        if (fileInfo.Exists)
-        {
-            await context.Response.SendFileAsync(fileInfo);
-        }
-        else
+        // There's no way to call app.UseStaticFiles() and then have vite's proxy
+        // take priority over paths that could be served by both.
+        // Therefore, we have to implement a light-weight UseStaticFiles() here.
+        pipeline.Use(async (context, next) =>
         {
             await next();
-        }
+
+            Console.WriteLine($"{context.Response.StatusCode} {context.Request.Path}");
+            if (context.Response.StatusCode == 404)
+            {
+                Console.WriteLine(context.Request.Path);
+
+                var env = app.Services.GetRequiredService<IWebHostEnvironment>();
+                var fileProvider = env.WebRootFileProvider;
+                var fileInfo = fileProvider.GetFileInfo(context.Request.Path);
+
+                if (fileInfo.Exists)
+                {
+                    await context.Response.SendFileAsync(fileInfo);
+                }
+            }
+        });
     });
 }
 else
