@@ -10,9 +10,7 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System.Runtime.CompilerServices;
-#if WINDOWS
-using Meziantou.Framework.Win32;
-#endif
+using System.Net.Sockets;
 
 /// <summary>
 /// Doesn't serve /ts/** from the file system because we want to proxy those
@@ -90,22 +88,26 @@ public class ViteProxy
         return path;
     }
 
-    public static bool LaunchVite(ILogger<ViteProxy> logger)
+    public static void LaunchVite(ILogger<ViteProxy> logger, IConfiguration proxyConfig)
     {
-        try
-        {
-            var self = new ViteProxy(logger);
-            return self.Launch();
-        }
-        catch (Exception e)
-        {
-            logger.LogWarning("Hot reloading TypeScript files is DISABLED because\n{}", e.Message);
-            return false;
-        }
-    }    
+        var self = new ViteProxy(logger);
+        self.Launch(proxyConfig);
+    }
 
-    bool Launch()
+    void Launch(IConfiguration proxyConfig)
     {
+        var proxyUri = ProxyAddressFromConfig(proxyConfig);
+        if (null == proxyUri)
+        {
+            throw new ViteProxyError("Failed to find proxy's address in configuration.");
+        }
+        if (SomethingIsListeningToUri(proxyUri))
+        {
+            logger.LogInformation("Sounds like an instance of Vite is already listening to {}:{}",
+                proxyUri.Host, proxyUri.Port);
+            return;
+        }
+
         var currentFilePath = GetThisFilePath();
         var currentDirectory = Path.GetDirectoryName(currentFilePath);
         var scriptsDirectory = Path.Join(currentDirectory, "scripts");
@@ -120,7 +122,6 @@ public class ViteProxy
                 break;
             }
         }
-
 
         // Confirm npm is installed.
         using (Process process = new Process())
@@ -146,9 +147,7 @@ public class ViteProxy
             process.WaitForExit();
             if (process.ExitCode != 0)
             {
-                logger.LogWarning("Hot reloading TypeScript files is DISABLED because npm isn't installed or maybe it's just not working. {}",
-                    error.ToString());
-                return false;
+                throw new ViteProxyError($"npm isn't installed or maybe it's just not working.\n{error}"); ;
             }
             logger.LogInformation("Found npm version {}.", output.ToString().Trim());
         }
@@ -157,81 +156,80 @@ public class ViteProxy
         var nodeModulesDirectory = Path.Join(scriptsDirectory, "node_modules");
         if (!Directory.Exists(nodeModulesDirectory))
         {
-            logger.LogWarning(
-                "Hot reloading TypeScript files is DISABLED because vite hasn't been installed in {}.\n" +
-                "Run the command 'npm ci --ignore-scripts --no-audit' in the /scripts directory to install vite.",
-                nodeModulesDirectory
+            throw new ViteProxyError(
+                $"Vite hasn't been installed in {nodeModulesDirectory}.\n" +
+                "Run the command 'npm ci --ignore-scripts --no-audit' in the /scripts directory to install vite."
             );
-            return false;
         }
-
-        #if WINDOWS
-        // Create the Job object and assign it to the current process
-        using var job = new JobObject();
-        job.SetLimits(new JobObjectLimits()
-        {
-            Flags = JobObjectLimitFlags.DieOnUnhandledException |
-                    JobObjectLimitFlags.KillOnJobClose,
-        });
-
-        job.AssignProcess(Process.GetCurrentProcess());
-        #endif
 
         // Finally, launch vite.
         using (Process process = new Process())
         {
             process.StartInfo = new ProcessStartInfo(npmCmd, ["run", "start"])
             {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
+                UseShellExecute = true,
                 WorkingDirectory = Path.Join(scriptsDirectory),
             };
 
-            StringBuilder output = new StringBuilder();
-            var started = false;
-            var exited = false;
-
-            process.OutputDataReceived += (sender, args) =>
-            {
-                if (!started)
-                {
-                    output.AppendLine(args.Data);
-                    if (output.ToString().Contains("Starting the development server"))
-                    {
-                        started = true;
-                    }
-                }
-                logger.LogInformation("{}", args.Data);
-            };
-            process.ErrorDataReceived += (sender, args) =>
-            {
-                logger.LogWarning(args.Data);
-
-            };
-            process.Exited += (sender, args) =>
-            {
-                logger.LogWarning("Process exited.");
-                exited = true;
-            };
-
             process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
 
+            var connected = false;
             do
             {
                 Thread.Sleep(50);
-                if (exited)
-                {
-                    logger.LogWarning("Hot reloading TypeScript files is DISABLED because npm exited unexpectedly.");
-                    return false;
-                }
-            } while (!started);
-            logger.LogInformation("Hot reloading TypeScript files is enabled.  Process {}", process.Id);
-            return true;
+                connected = SomethingIsListeningToUri(proxyUri);
+            } while (!connected);
         }
     }
-}    
- 
+
+    public static Uri? ProxyAddressFromConfig(IConfiguration? config)
+    {
+        if (null == config)
+        {
+            return null;
+        }
+        var sections = new List<string>();
+        foreach (var kv in config.AsEnumerable())
+        {
+            if ("Address" == kv.Key && null != kv.Value)
+            {
+                return new Uri(kv.Value);
+            }
+            else if (kv.Value == null)
+            {
+                sections.Add(kv.Key);
+            }
+        }
+        foreach (var key in sections)
+        {
+            var uri = ProxyAddressFromConfig(config.GetSection(key));
+            if (null != uri)
+            {
+                return uri;
+            }
+        }
+        return null;
+    }
+
+    public static bool SomethingIsListeningToUri(Uri uri)
+    {
+        using (Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+        {
+            try
+            {
+                clientSocket.ConnectAsync(uri.Host, uri.Port).Wait();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;   
+            }
+        }
+    }
+}
+
+public class ViteProxyError : Exception {
+    public ViteProxyError(string message) : base(message) { }
+
+    public ViteProxyError(string message, Exception inner) : base(message, inner) { }
+}
