@@ -105,7 +105,6 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
     // Define the event handlers.
     private void OnChanged(object source, FileSystemEventArgs e)
     {
-        logger.LogInformation("{} {}", e.FullPath, e.ChangeType);
         // Ignore all changes in node_modules.
         var path = e.FullPath;
         while (!string.IsNullOrEmpty(path)) {
