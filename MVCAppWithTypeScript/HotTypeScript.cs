@@ -74,8 +74,7 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
         watcher = new FileSystemWatcher();
         watcher.Path = watchPath;
 
-        watcher.NotifyFilter = NotifyFilters.LastAccess
-                                | NotifyFilters.LastWrite
+        watcher.NotifyFilter = NotifyFilters.LastWrite
                                 | NotifyFilters.FileName
                                 | NotifyFilters.DirectoryName
                                 | NotifyFilters.Size
