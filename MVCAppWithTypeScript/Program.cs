@@ -10,14 +10,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 if ((Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "")
-.ToLower() != "development")
+.ToLower() == "development")
+{
+    builder.Services.AddHostedService<HotTypeScript>();
+}
+else
 {
     var port = Environment.GetEnvironmentVariable("PORT");
     if (port != null)
     {
         builder.WebHost.UseUrls($"http://*:{port}");
     }
-    builder.Services.AddSingleton<HotTypeScript>();
 }
 
 var app = builder.Build();

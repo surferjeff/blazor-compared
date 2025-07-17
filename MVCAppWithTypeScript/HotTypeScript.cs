@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Timers;
 using System.Linq;
 using System.IO;
+using System.Runtime.InteropServices;
 
 record struct FSEvent(DateTime timestamp, FileSystemEventArgs args);
 
@@ -25,13 +26,20 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
             throw new HotTypeScriptError("Failed to find path to HotTypeScript.cs");
         }
         var myDir = Path.GetDirectoryName(myPath);
+        var esbuildBin = "esbuild";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            esbuildBin = "esbuild.cmd";
+        }
         var esbuildPath = Path.Join(myDir, "scripts", "node_modules", ".bin",
-            "esbuild");
-        if (!Path.Exists(esbuildPath)) {
-            throw new HotTypeScriptError($"esbuild not found at {esbuildPath}\n" +
+            esbuildBin);
+        if (!Path.Exists(esbuildPath))
+        {
+            logger.LogError($"Hot TypeScript reloading is DISABLED because esbuild not found at {esbuildPath}\n" +
                 "Run 'npm ci --no-audit --ignore-scripts' in the scripts " +
                 "directory to install esbuild."
             );
+            return Task.CompletedTask;
         }
         lock(_lock) {
             this.esbuildPath = esbuildPath;
@@ -92,7 +100,7 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
     {
         // Ignore all changes in node_modules.
         var path = e.FullPath;
-        while (string.IsNullOrEmpty(path)) {
+        while (!string.IsNullOrEmpty(path)) {
             var name = Path.GetFileName(path);
             if ("node_modules" == name?.ToLowerInvariant()) {
                 return;
@@ -112,13 +120,18 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
 
     private void ClearTimerLocked() {
         if (null != timer) {
-            timer.Dispose();
+            timer.Enabled = false;
             timer = null;
         }
     }
 
     private void OnTimer(object? sender, ElapsedEventArgs args)
     {
+        var timer = (System.Timers.Timer?)sender;
+        if (!(timer?.Enabled ?? false))
+        {
+            return;
+        }
         // Copy everything we need that's protected by the lock
         // and release the lock quickly to avoid contention.
         string esbuildPath = "";
@@ -174,12 +187,14 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
         // Invoke esbuild to compile.
         var esbuildArgs = toBeCompiled.Select(
             tsPath => Path.GetRelativePath(myDir, tsPath)).ToList();
-        esbuildArgs.Add("--outdir");
-        esbuildArgs.Add(Path.Join(myDir, "wwwroot", "ts"));
+        esbuildArgs.Add($"--outdir={Path.Join(myDir, "wwwroot", "ts")}");
+        esbuildArgs.Add("--sourcemap");
         using Process process = new Process();
         process.StartInfo = new ProcessStartInfo(esbuildPath, esbuildArgs)
         {
             UseShellExecute = false,
+            RedirectStandardOutput = false,
+            RedirectStandardError = false,
             CreateNoWindow = true,
             WorkingDirectory = myDir
         };
@@ -187,7 +202,7 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
         process.WaitForExit();
         if (process.ExitCode != 0)
         {
-            logger.LogError("Error compiling {}",
+            logger.LogError("Error compiling {} {}", esbuildPath,
                 string.Join(" ", esbuildArgs));
         }
     }
