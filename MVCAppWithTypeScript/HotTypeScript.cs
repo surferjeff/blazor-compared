@@ -1,8 +1,5 @@
-
-
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Timers;
 using System.Runtime.InteropServices;
 
 record struct FSEvent(DateTime timestamp, FileSystemEventArgs args);
@@ -10,25 +7,14 @@ record struct FSEvent(DateTime timestamp, FileSystemEventArgs args);
 // Watches typescript files and compiles them when they change.
 public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
 {
-    object _lock = new Object(); // Protects all members except logger.
-    // Esbuild has a watch command, so why not use it?
-    // On Windows, there's no way to guarantee a child process dies when the
-    // parent process dies.  Jobs are supposed to do that, but I tried them
-    // and they didn't work as documented.  Therefore, on Windows, running
-    // `esbuild watch` would leave lots of processes running after multiple
-    // debugging sessions.  So instead, this class uses a FileSystemWatcher,
-    // which always stops watching when the process terminates.
-    FileSystemWatcher? watcher;
-    string esbuildPath = "";
-    string myDir = "";
-    // For debouncing events.
-    List<FSEvent> events = [];
-    System.Timers.Timer? timer = null;
+    // Keep esbuild's stdin open.  The process exits when it's closed.
+    private StreamWriter? stdin;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
         var myPath = GetThisFilePath();
-        if (null == myPath) {
+        if (null == myPath)
+        {
             throw new HotTypeScriptError("Failed to find path to HotTypeScript.cs");
         }
         var myDir = Path.GetDirectoryName(myPath);
@@ -47,24 +33,27 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
             );
             return Task.CompletedTask;
         }
-        var watchPath = Path.Join(myDir, "scripts");
-        lock (_lock) {
-            this.esbuildPath = esbuildPath;
-            this.myDir = myDir ?? "";
-            StartWatchingLocked(watchPath);
-        }
-        logger.LogInformation("Hot TypeScript reloading is watching {}", watchPath);
+        var watchPath = Path.Join(myDir, "scripts", "**", "*.ts");
+        List<string> esbuildArgs = [watchPath, "--watch",
+            $"--outdir={Path.Join(myDir, "wwwroot", "ts")}"];
+        using Process process = new Process();
+        process.StartInfo = new ProcessStartInfo(esbuildPath, esbuildArgs)
+        {
+            UseShellExecute = false,
+            RedirectStandardInput = true,
+            WorkingDirectory = myDir,
+        };
+        process.Start();
+        stdin = process.StandardInput;
         return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        lock(_lock) {
-            ClearTimerLocked();
-            if (null != watcher) {
-                watcher.Dispose();
-                watcher = null;
-            }
+        if (null != stdin)
+        {
+            stdin.Close();
+            stdin = null;
         }
         return Task.CompletedTask;
     }
@@ -72,178 +61,6 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
     private static string? GetThisFilePath([CallerFilePath] string? path = null)
     {
         return path;
-    }
-
-    void StartWatchingLocked(string watchPath)
-    {
-        Debug.Assert(null == watcher);
-        watcher = new FileSystemWatcher();
-        watcher.Path = watchPath;
-
-        watcher.NotifyFilter = NotifyFilters.LastWrite
-                                | NotifyFilters.FileName
-                                | NotifyFilters.DirectoryName
-                                | NotifyFilters.Size
-                                | NotifyFilters.CreationTime
-                                | NotifyFilters.Attributes;
-
-        watcher.IncludeSubdirectories = true;
-
-        watcher.Filter = "*.ts";
-
-        // Add event handlers.
-        watcher.Changed += OnChanged;
-        watcher.Created += OnChanged;
-        watcher.Deleted += OnChanged;
-        watcher.Renamed += OnChanged;
-        watcher.Error += OnError;
-
-        // Begin watching.
-        watcher.EnableRaisingEvents = true;
-    }
-
-    // Define the event handlers.
-    private void OnChanged(object source, FileSystemEventArgs e)
-    {
-        // Ignore all changes in node_modules.
-        var path = e.FullPath;
-        while (!string.IsNullOrEmpty(path)) {
-            var name = Path.GetFileName(path);
-            if ("node_modules" == name?.ToLowerInvariant()) {
-                return;
-            }
-            path = Path.GetDirectoryName(path);
-        }
-
-        lock (events) {
-            // Debounce.
-            ClearTimerLocked();
-            events.Add(new FSEvent(DateTime.Now, e));
-            timer = new System.Timers.Timer(500);
-            timer.Elapsed += OnTimer;
-            timer.Start();
-        }
-    }
-
-    private void ClearTimerLocked() {
-        if (null != timer) {
-            timer.Enabled = false;
-            timer = null;
-        }
-    }
-
-    private void OnTimer(object? sender, ElapsedEventArgs args)
-    {
-        var timer = (System.Timers.Timer?)sender;
-        if (!(timer?.Enabled ?? false))
-        {
-            return;
-        }
-        // Copy everything we need that's protected by the lock
-        // and release the lock quickly to avoid contention.
-        string esbuildPath = "";
-        string watchPath = "";
-        string myDir = "";
-        List<FSEvent> events = [];
-        lock (_lock) {
-            ClearTimerLocked();
-            if (null == watcher) {
-                return;
-            }
-            events = this.events;
-            esbuildPath = this.esbuildPath;
-            this.events = [];
-            watchPath = watcher.Path;
-            myDir = this.myDir;
-        }
-
-        string JsPathFrom(string tsPath) {
-            var relPath = Path.GetRelativePath(watchPath, tsPath);
-            var relJsPath = relPath.Substring(0, relPath.Length - 3) + ".js";
-            return Path.Join(myDir, "wwwroot", "ts", relJsPath);
-        }
-
-        // Collect files that need to be compiled and delete files.
-        var changed = new HashSet<string>();
-        var toBeCompiled = new List<string>();
-        foreach (var e in events.OrderBy(e => e.timestamp).Reverse()) {
-            switch (e.args.ChangeType)
-            {
-                case WatcherChangeTypes.Changed:
-                case WatcherChangeTypes.Created:
-                    if (changed.Add(e.args.FullPath))
-                    {
-                        toBeCompiled.Add(e.args.FullPath);
-                    }
-                    break;
-                case WatcherChangeTypes.Deleted:
-                    if (changed.Add(e.args.FullPath))
-                    {
-                        Delete(JsPathFrom(e.args.FullPath));
-                    }
-                    break;
-                case WatcherChangeTypes.Renamed:
-                    RenamedEventArgs re = (RenamedEventArgs)e.args;
-                    if (changed.Add(re.OldFullPath))
-                    {
-                        Delete(JsPathFrom(re.OldFullPath));
-                    }
-                    if (changed.Add(re.FullPath))
-                    {
-                        toBeCompiled.Add(re.FullPath);
-                    }
-                    break;
-            }            
-        }
-
-        // Invoke esbuild to compile.
-        if (0 == toBeCompiled.Count) {
-            return;
-        }
-        var esbuildArgs = toBeCompiled.Select(
-            tsPath => Path.GetRelativePath(myDir, tsPath)).ToList();
-        esbuildArgs.Add($"--outdir={Path.Join(myDir, "wwwroot", "ts")}");
-        esbuildArgs.Add("--sourcemap");
-        using Process process = new Process();
-        process.StartInfo = new ProcessStartInfo(esbuildPath, esbuildArgs)
-        {
-            UseShellExecute = false,
-            RedirectStandardOutput = false,
-            RedirectStandardError = false,
-            CreateNoWindow = true,
-            WorkingDirectory = myDir
-        };
-        process.Start();
-        process.WaitForExit();
-        if (process.ExitCode != 0)
-        {
-            logger.LogError("Error compiling {} {}", esbuildPath,
-                string.Join(" ", esbuildArgs));
-        }
-    }
-
-    private void Delete(string jsPath)
-    {
-        DeleteAndLogError(jsPath);
-        DeleteAndLogError(jsPath + ".map");
-    }
-    
-    private void DeleteAndLogError(string jsPath)
-    {
-        try
-        {
-            File.Delete(jsPath);
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Failed to delete {}\n{}", jsPath, e.ToString());
-        }
-
-    }
-
-    private void OnError(object source, ErrorEventArgs e)
-    {
-        logger.LogError("While watching {}\n{}", watcher?.Path, e.ToString());
     }
 }
 
