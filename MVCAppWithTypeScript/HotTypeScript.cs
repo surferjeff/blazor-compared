@@ -160,26 +160,31 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
         var changed = new HashSet<string>();
         var toBeCompiled = new List<string>();
         foreach (var e in events.OrderBy(e => e.timestamp).Reverse()) {
-            if (changed.Contains(e.args.FullPath)) {
-                continue;
-            }
-            changed.Add(e.args.FullPath);
             switch (e.args.ChangeType)
             {
                 case WatcherChangeTypes.Changed:
-                    toBeCompiled.Add(e.args.FullPath);
-                    break;
                 case WatcherChangeTypes.Created:
-                    toBeCompiled.Add(e.args.FullPath);
+                    if (changed.Add(e.args.FullPath))
+                    {
+                        toBeCompiled.Add(e.args.FullPath);
+                    }
                     break;
                 case WatcherChangeTypes.Deleted:
-                    Delete(JsPathFrom(e.args.FullPath));
+                    if (changed.Add(e.args.FullPath))
+                    {
+                        Delete(JsPathFrom(e.args.FullPath));
+                    }
                     break;
                 case WatcherChangeTypes.Renamed:
                     RenamedEventArgs re = (RenamedEventArgs)e.args;
-                    Delete(JsPathFrom(re.OldFullPath));
-                    changed.Add(re.OldFullPath);
-                    toBeCompiled.Add(e.args.FullPath);
+                    if (changed.Add(re.OldFullPath))
+                    {
+                        Delete(JsPathFrom(re.OldFullPath));
+                    }
+                    if (changed.Add(re.FullPath))
+                    {
+                        toBeCompiled.Add(re.FullPath);
+                    }
                     break;
             }            
         }
@@ -207,11 +212,21 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
         }
     }
 
-    private void Delete(string tsPath) {
-        try {
-            File.Delete(tsPath);
-        } catch (Exception e) {
-            logger.LogError("Failed to delete {}\n{}", tsPath, e.ToString());
+    private void Delete(string jsPath)
+    {
+        DeleteAndLogError(jsPath);
+        DeleteAndLogError(jsPath + ".map");
+    }
+    
+    private void DeleteAndLogError(string jsPath)
+    {
+        try
+        {
+            File.Delete(jsPath);
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Failed to delete {}\n{}", jsPath, e.ToString());
         }
 
     }
