@@ -9,12 +9,12 @@ builder.Services.AddControllersWithViews();
 // Add services to the container.
 builder.Services.AddSingleton<WeatherForecastService>();
 
-// Configure YARP
-var proxyConfig = builder.Configuration.GetSection("ReverseProxy");
-builder.Services.AddReverseProxy().LoadFromConfig(proxyConfig);
-
 if ((Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "")
-.ToLower() != "development")
+.ToLower() == "development")
+{
+    builder.Services.AddHostedService<HotTypeScript>();
+}
+else
 {
     var port = Environment.GetEnvironmentVariable("PORT");
     if (port != null)
@@ -39,26 +39,7 @@ else
 
 app.UseRouting();
 
-var staticFileOptions = new StaticFileOptions();
-if (app.Environment.IsDevelopment()) {
-    // Serve /ts files from the vite proxy, not static files from /wwwroot.
-    var viteLogger = app.Services.GetService<ILogger<ViteProxy>>()!;
-    try
-    {
-        ViteProxy.LaunchVite(viteLogger, proxyConfig);
-        app.MapReverseProxy();
-        staticFileOptions.FileProvider = new KnockoutTs(app.Environment.WebRootFileProvider);
-        viteLogger.LogInformation("Hot reloading Typescript is enabled.");
-    }
-    catch (Exception e)
-    {
-        viteLogger.LogError("Hot reloading Typescript is DISABLED because\n{}",
-        e.Message);
-    }
-}
-
-app.UseStaticFiles(staticFileOptions);
-
+app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",
