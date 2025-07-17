@@ -3,15 +3,21 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Timers;
-using System.Linq;
-using System.IO;
 using System.Runtime.InteropServices;
 
 record struct FSEvent(DateTime timestamp, FileSystemEventArgs args);
 
+// Watches typescript files and compiles them when they change.
 public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
 {
-    object _lock = new Object(); // Protects all members.
+    object _lock = new Object(); // Protects all members except logger.
+    // Esbuild has a watch command, so why not use it?
+    // On Windows, there's no way to guarantee a child process dies when the
+    // parent process dies.  Jobs are supposed to do that, but I tried them
+    // and they didn't work as documented.  Therefore, on Windows, running
+    // `esbuild watch` would leave lots of processes running after multiple
+    // debugging sessions.  So instead, this class uses a FileSystemWatcher,
+    // which always stops watching when the process terminates.
     FileSystemWatcher? watcher;
     string esbuildPath = "";
     string myDir = "";
