@@ -197,6 +197,9 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
         }
 
         // Invoke esbuild to compile.
+        if (0 == toBeCompiled.Count) {
+            return;
+        }
         var esbuildArgs = toBeCompiled.Select(
             tsPath => Path.GetRelativePath(myDir, tsPath)).ToList();
         esbuildArgs.Add($"--outdir={Path.Join(myDir, "wwwroot", "ts")}");
