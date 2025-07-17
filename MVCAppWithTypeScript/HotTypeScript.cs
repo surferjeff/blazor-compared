@@ -41,11 +41,13 @@ public class HotTypeScript(ILogger<HotTypeScript> logger) : IHostedService
             );
             return Task.CompletedTask;
         }
-        lock(_lock) {
+        var watchPath = Path.Join(myDir, "scripts");
+        lock (_lock) {
             this.esbuildPath = esbuildPath;
             this.myDir = myDir ?? "";
-            StartWatchingLocked(Path.Join(myDir, "scripts"));
+            StartWatchingLocked(watchPath);
         }
+        logger.LogInformation("Hot TypeScript reloading is watching {}", watchPath);
         return Task.CompletedTask;
     }
 
