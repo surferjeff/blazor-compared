@@ -12,6 +12,7 @@
 
 <script type="module">
     const response = await fetch("/Forecasts");
+    if (!response.ok) throw new Error(`Bad response: ${response.status}`);
     document.getElementById("tableHere").innerHTML = await response.text();
 </script>
 
