@@ -10,8 +10,6 @@
 
 <script type="module">
     let count = 0;
-    function onClick() {
-        document.getElementById("countSpan").innerText = ++count;
-    }
-    document.getElementById("countBtn").onclick = onClick;
+    document.getElementById("countBtn").onclick =
+        () => document.getElementById("countSpan").innerText = ++count;
 </script>
